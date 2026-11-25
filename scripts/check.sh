@@ -13,6 +13,11 @@ echo "== Direct Mode suite";     python -m pytest tests/direct -q
 if command -v node >/dev/null 2>&1; then
   echo "== live script (dry run, no network)"
   node scripts/live_e2e.mjs --dry-run --out-dir=reports
+  TMP_REPORTS="$(mktemp -d)"
+  echo "== live script (dry run, Studionet-like: rejected payable calls keep their value)"
+  node scripts/live_e2e.mjs --dry-run --retain-rejected --out-dir="$TMP_REPORTS"
+  echo "== live script (dry run, injected transport faults: rate limit + lost receipt)"
+  node scripts/live_e2e.mjs --dry-run --retain-rejected --flaky-rpc --out-dir="$TMP_REPORTS"
 else
   echo "== node not found: skipping the dry run"
 fi
