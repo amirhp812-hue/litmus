@@ -1,5 +1,5 @@
-// Real Studionet adapter built on genlayer-js 1.1.8 (the version pinned in package.json).
-import { createClient, createAccount, generatePrivateKey } from 'genlayer-js';
+// Real Studionet adapter built on genlayer-js 2.1.0 (the version pinned in package.json).
+import { createClient, createAccount, generatePrivateKey, createFeesDistribution } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
 import { TransactionStatus } from 'genlayer-js/types';
 import { isRateLimitError, retryTransient, sleepReal } from './common.mjs';
@@ -62,7 +62,7 @@ export class RealChain {
     this.intervalMs = intervalMs;
     this.client = createClient({ chain: studionet, ...(rpc ? { endpoint: rpc } : {}) });
     this.isDryRun = false;
-    this.events = [];   // transport hiccups that were retried; the live script copies them into the report notes
+    this.events = []; this.cachedFeeConfig = null;   // transport hiccups that were retried; the live script copies them into the report notes
   }
   now() { return Date.now(); }
   async sleep(ms) { return sleepReal(ms); }
@@ -91,9 +91,24 @@ export class RealChain {
     await ask('deployerBalanceWei', async () => String(await this.client.getBalance({ address })));
     return out;
   }
+  async getV06TxParams(fn="",acct=null,address=null,args=[],value=0n){
+    if(fn==="withdraw"&&address&&typeof this.client.estimateTransactionFeesForWrite==="function"){
+      try{
+        const est=await this.client.estimateTransactionFeesForWrite({account:acct?.account,address,functionName:fn,args,value:BigInt(value)});
+        return{gas:500000n,fees:{distribution:est.distribution,...(est.messageAllocations?.length?{messageAllocations:est.messageAllocations}:{}),feeValue:est.feeValue}};
+      }catch(e){if(isRateLimitError(e))throw e;}
+    }
+    if(this.cachedFeeConfig==null){
+      try{this.cachedFeeConfig=await this.client.request({method:"sim_getFeeConfig",params:[]});}catch(e){this.cachedFeeConfig=null;}
+    }
+    const c=this.cachedFeeConfig;
+    if(c==null||c.enabled==false||c.defaultFees==null)return{};
+    const d=c.defaultFees.distribution||{};
+    return{gas:500000n,fees:{distribution:createFeesDistribution({...d,rotations:d.rotations||["0"]}),feeValue:BigInt(c.defaultFees.feeValue||78852000002588)}};
+  }
   async balance(address) { return BigInt(await this.retrying('getBalance', () => this.client.getBalance({ address }))); }
   async deploy(code, acct) {
-    const hash = await this.client.deployContract({ account: acct.account, code, args: [] });
+    const hash = await (async()=>{const v=await this.getV06TxParams('deploy',acct);return this.client.deployContract({account:acct.account,code,args:[],...v});})();
     const raw = await this.retrying('deploy receipt', () => this.client.waitForTransactionReceipt({ hash, status: TransactionStatus.ACCEPTED, retries: this.retries, interval: this.intervalMs, fullTransaction: true }));
     const receipt = normalizeReceipt(hash, raw);
     return { receipt, address: receipt.contractAddress, raw };
@@ -108,7 +123,7 @@ export class RealChain {
   async send(acct, address, fn, args, value = 0n) {
     let hash;
     try {
-      hash = await this.retrying(`submit ${fn}`, () => this.client.writeContract({ account: acct.account, address, functionName: fn, args, value: BigInt(value) }), { shouldRetry: isRateLimitError });
+      hash = await this.retrying(`submit ${fn}`, () => (async()=>{const v=await this.getV06TxParams(fn,acct,address,args,value);return this.client.writeContract({account:acct.account,address,functionName:fn,args,value:BigInt(value),...v});})(), { shouldRetry: isRateLimitError });
     } catch (error) {
       error.submitted = isRateLimitError(error) ? 'no' : 'maybe';
       throw error;
