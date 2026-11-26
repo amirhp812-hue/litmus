@@ -82,6 +82,15 @@ export class RealChain {
   async fundAccount(address, weiAmount) {
     await this.client.request({ method: 'sim_fundAccount', params: [address, Number(weiAmount)] });
   }
+  /** Facts that explain a failed deploy. Every item is best effort: a method this Studio does not offer is skipped. */
+  async diagnostics(address) {
+    const out = {};
+    const ask = async (key, fn) => { try { out[key] = await fn(); } catch (error) { out[key] = `unavailable (${String(error?.shortMessage ?? error?.message ?? error).replace(/\s+/g, ' ').slice(0, 80)})`; } };
+    await ask('chainId', async () => this.client.request({ method: 'eth_chainId' }));
+    await ask('validators', async () => this.client.request({ method: 'sim_countValidators', params: [] }));
+    await ask('deployerBalanceWei', async () => String(await this.client.getBalance({ address })));
+    return out;
+  }
   async balance(address) { return BigInt(await this.retrying('getBalance', () => this.client.getBalance({ address }))); }
   async deploy(code, acct) {
     const hash = await this.client.deployContract({ account: acct.account, code, args: [] });

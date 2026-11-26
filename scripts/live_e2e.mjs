@@ -232,6 +232,7 @@ async function setup() {
     }
   }
   check('PASS', 'accounts created and funded', names.map((n) => `${n}=${ACCTS[n].address}`).join(' '));
+  if (chain.diagnostics) check('INFO', 'network diagnostics before deploy', JSON.stringify(await chain.diagnostics(ACCTS.author.address)));
 }
 
 async function deploy() {
@@ -515,6 +516,16 @@ async function withdrawAll() {
 }
 
 // ------------------------------------------------------------------------------------------ main
+/** Revert reasons live in the nested causes of a viem error; the first stack lines alone hide them. */
+function describeError(error) {
+  const parts = [];
+  for (let e = error, depth = 0; e && depth < 5; e = e.cause, depth += 1) {
+    const text = [e.shortMessage, e.details, e.reason, e.data ? `data=${typeof e.data === 'string' ? e.data : JSON.stringify(e.data)}` : null, ...(e.metaMessages ?? [])].filter(Boolean).join(' / ');
+    if (text) parts.push(text.replace(/\s+/g, ' ').slice(0, 300));
+  }
+  return parts.length > 0 ? parts.join(' <- caused by: ') : String(error?.stack ?? error).split('\n').slice(0, 3).join(' | ');
+}
+
 async function writeReport(error) {
   report.finishedAt = new Date().toISOString();
   for (const event of chain?.events ?? []) report.notes.push(`rpc: ${event}`);
@@ -561,7 +572,7 @@ async function main() {
   } catch (error) {
     failure = error;
     if (error instanceof Abort) check('FAIL', 'run aborted', error.message);
-    else { check('FAIL', 'unexpected error', error?.stack?.split('\n').slice(0, 3).join(' | ') ?? String(error)); }
+    else { check('FAIL', 'unexpected error', describeError(error)); }
   }
   await writeReport(failure);
   const hard = COUNT.FAIL + (STRICT ? COUNT.WARN : 0);
