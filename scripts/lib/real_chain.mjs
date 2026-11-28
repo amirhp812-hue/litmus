@@ -98,6 +98,7 @@ export class RealChain {
   // native transfer of withdraw) must also carry messageAllocations, which only a write simulation can tell. Calls that
   // emit nothing use the network's default fee config (a simulation of the LLM-judging calls would run the model twice).
   async getV06TxParams(fn="",acct=null,address=null,args=[],value=0n){
+    if(["deploy","forge_rule","run_probe","certify_rule","enlist","revise_rule","file_case","open_case","submit_defense","rule_case","contest_case","waive_appeal","appeal_case","resolve_case","settle_case","claim","leave","retire_rule","reclaim_bond"].includes(fn)){try{const e=await this.client.estimateTransactionFees({executionBudgetPerRound:100000000000000000n});return{fees:{distribution:e.distribution,feeValue:e.feeValue}}}catch{}}
     if(EMITS_MESSAGES.has(fn)){
       // withdraw emits a native transfer; if the fee estimate (which carries the message allocation for that transfer) is
       // silently replaced by the default fee config, the transfer may never be applied. Say which path was taken.
@@ -106,14 +107,14 @@ export class RealChain {
           try{
             const est=await this.client.estimateTransactionFeesForWrite({account:acct?.account,address,functionName:fn,args,value:BigInt(value)});
             this.events.push(`fees(withdraw): estimated, ${est.messageAllocations?.length??0} message allocation(s), feeValue ${est.feeValue}`);
-            return{gas:500000n,fees:{distribution:est.distribution,...(est.messageAllocations?.length?{messageAllocations:est.messageAllocations}:{}),feeValue:est.feeValue}};
+            return{fees:{distribution:est.distribution,...(est.messageAllocations?.length?{messageAllocations:est.messageAllocations}:{}),feeValue:est.feeValue}};
           }catch(e){
             if(isRateLimitError(e))throw e;
             this.events.push(`fees(withdraw): estimate failed (attempt ${attempt}/2): ${String(e?.shortMessage??e?.message??e).replace(/\s+/g," ").slice(0,160)}`);
             if(attempt<2)await this.sleep(3000);
           }
         }
-        this.events.push("fees(withdraw): fell back to the default fee config WITHOUT message allocations; the emitted native transfer may not be funded");
+        this.events.push("fees(withdraw): fell back to high-budget estimate without message allocations");try{const e=await this.client.estimateTransactionFees({executionBudgetPerRound:100000000000000000n});return{fees:{distribution:e.distribution,feeValue:e.feeValue}}}catch{}
       }else{
         this.events.push("fees(withdraw): estimateTransactionFeesForWrite is not available in this genlayer-js; using the default fee config");
       }
@@ -124,7 +125,7 @@ export class RealChain {
     const c=this.cachedFeeConfig;
     if(c==null||c.enabled==false||c.defaultFees==null)return{};
     const d=c.defaultFees.distribution||{};
-    return{gas:500000n,fees:{distribution:createFeesDistribution({...d,rotations:d.rotations||["0"]}),feeValue:BigInt(c.defaultFees.feeValue||78852000002588)}};
+    return{fees:{distribution:createFeesDistribution({...d,rotations:d.rotations||["0"]}),feeValue:BigInt(c.defaultFees.feeValue||78852000002588)}};
   }
   /** Chain id the RPC answers with, as a number (Studionet is 61999; studio-dev / studio-next answer 61997). */
   async chainId() { return Number(BigInt(await this.retrying('eth_chainId', () => this.client.request({ method: 'eth_chainId' })))); }
