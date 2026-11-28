@@ -94,3 +94,19 @@ nondeterministic closures capture only a `str`, an `int` and a tuple, so no `gl.
 **The v0.4 contract is a new contract**: v0.2 contracts keep their address and state on Studio v0.123 for now, but nothing
 migrates. Deploy it fresh (`node scripts/live_e2e.mjs` deploys, source-checks and records the new address) and use the new
 address everywhere.
+
+## Direct Mode harness notes (genlayer-test 0.30.0, GenVM v0.4 SDK)
+
+`tests/direct/conftest.py` wraps `_genlayer_wasi.gl_call` once per test world. Three facts about the mock host drive it:
+
+* **Model replies must reach the SDK as text.** genlayer-test parses a mocked JSON reply into a dict
+  (genlayer-testing-suite issue #157); the v0.4 SDK expects the host to answer `exec_prompt(..., response_format="json")`
+  with text and parses it itself, otherwise every judging call fails with `JSON result is not text`. `llm()` already hands
+  `mock_llm` a JSON string; `reply_as_text()` turns the parsed answer back into text on its way to the SDK.
+* **The mock never moves money.** Outgoing native transfers are recorded from the host request itself: `PostMessage`
+  (carries a delivery flag `on`) or `EthSend` (a payout to a wallet; no flag). `world.transfers` holds one entry per payout.
+* **`calldata` lives at `genlayer.calldata` in the v0.4 SDK** (`genlayer.py.calldata` in v0.2); the import tries both.
+
+If a payout test ever shows an empty `world.transfers`, run `LITMUS_TRACE_GL_CALLS=1 python -m pytest tests/direct -s -k withdraw`:
+the first request of every kind is printed, which shows what `gl.chain.Account(...).emit_transfer` really sends.
+`tests/direct/test_host_shims.py` covers the helpers without any GenVM.

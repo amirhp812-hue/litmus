@@ -85,7 +85,7 @@ Full state machines, record layouts and arithmetic: [docs/ARCHITECTURE.md](docs/
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt     # genlayer-test 0.30.0, genvm-linter 0.11.1rc2, pytest
+pip install -r requirements-dev.txt     # genlayer-test 0.30.0, genvm-linter 0.11.1rc2, pytest, cloudpickle
 npm ci                                  # genlayer-js 2.1.0 (only needed for the live script)
 
 bash scripts/check.sh                   # lint + static guards + Direct Mode suite + dry run

@@ -4,6 +4,7 @@ They pin the exact-equality law into the code shape: the validator may compare t
 only with ``==``; no ordering, no ``abs``, no counting, no model-based comparison helpers.
 """
 import ast
+import os
 import re
 from pathlib import Path
 
@@ -29,13 +30,29 @@ def test_header_pins_the_genvm_v0_4_runner():
     assert LEGACY_V02_HASH not in SOURCE
 
 
+# Directories that are not part of the project: VCS data, dependencies, virtual environments, caches, build output.
+SKIPPED_DIRS = {".git", "node_modules", ".genvmroot", ".venv", "venv", ".pytest_cache", "artifacts", "__pycache__",
+                ".mypy_cache", ".ruff_cache", ".tox"}
+SCANNED_SUFFIXES = {".py", ".md", ".mjs", ".sh", ".json", ".yml", ".yaml", ".txt"}
+
+
+def project_files():
+    """Every project file worth scanning, without ever descending into a virtual environment or a dependency tree."""
+    for folder, dirs, files in os.walk(ROOT):
+        dirs[:] = sorted(d for d in dirs
+                         if d not in SKIPPED_DIRS and not d.startswith(".venv")
+                         and not (Path(folder) / d / "pyvenv.cfg").exists())   # a virtualenv under any name
+        for name in sorted(files):
+            path = Path(folder) / name
+            if path.suffix in SCANNED_SUFFIXES:
+                yield path
+
+
 def test_contract_source_is_english_ascii_only():
     assert SOURCE.isascii(), "contract must contain plain ASCII only"
-    for path in list(ROOT.glob("**/*")):
-        if path.is_file() and path.suffix in {".py", ".md", ".mjs", ".sh", ".json", ".yml", ".yaml", ".txt"} \
-                and ".git" not in path.parts and "node_modules" not in path.parts and ".genvmroot" not in path.parts:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            assert not re.search(r"[\u0600-\u06FF\u0750-\u077F]", text), f"non-English (Arabic-script) text in {path}"
+    for path in project_files():
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        assert not re.search(r"[\u0600-\u06FF\u0750-\u077F]", text), f"non-English (Arabic-script) text in {path}"
 
 
 def test_validator_compares_only_with_equality():

@@ -202,7 +202,8 @@ def test_retire_and_reclaim_bond(world):
     world.audit()
     world.call(0, "withdraw")
     assert world.claimable(0) == 0
-    assert world.transfers == [{"to": world.w(0), "value": BOND, "method": None, "on": "finalized"}]
+    assert [(t["to"], t["value"], t["method"]) for t in world.transfers] == [(world.w(0), BOND, None)]
+    assert all(t["on"] in ("finalized", None) for t in world.transfers)   # None: an EthSend to a wallet has no delivery flag
     assert world.audit()["escrow_total"] == "0"
 
 
@@ -241,7 +242,8 @@ def test_withdraw_pays_once_and_zeroes_ledger(world):
     world.call(1, "leave", rid)
     world.fail(2, "withdraw", match="nothing to withdraw")
     world.call(1, "withdraw")
-    assert world.transfers == [{"to": world.w(1), "value": STAKE, "method": None, "on": "finalized"}]
+    assert [(t["to"], t["value"], t["method"]) for t in world.transfers] == [(world.w(1), STAKE, None)]
+    assert all(t["on"] in ("finalized", None) for t in world.transfers)
     world.fail(1, "withdraw", match="nothing to withdraw")
     stats = world.audit()
     assert stats["claimable_total"] == "0" and stats["escrow_total"] == str(BOND)

@@ -1,5 +1,6 @@
 """Shared Direct Mode helpers for the Litmus test-suite (real GenVM v0.4 SDK from the Studio v0.123 release, no RPC)."""
 import json
+import os
 import sys
 
 import pytest
@@ -42,7 +43,10 @@ def R(verdict, *flags, reason="Because the rule text says so."):
 
 
 def llm(vm, *pairs):
-    """Replace all LLM mocks. Earlier pairs win (first-match semantics)."""
+    """Replace all LLM mocks. Earlier pairs win (first-match semantics).
+
+    Replies are always handed to ``mock_llm`` as JSON *text*.  (genlayer-test then parses that text into a dict; the
+    spy in build_world() turns it back into text before the v0.4 SDK sees it, see reply_as_text.)"""
     vm.clear_mocks()
     for pattern, ruling in pairs:
         vm.mock_llm(pattern, ruling if isinstance(ruling, str) else json.dumps(ruling))
@@ -54,6 +58,55 @@ PROBE_PAIRS = [
     (r"free open-source tutorial", R("COMPLIANT", False, False)),
     (r"free blog post", R("COMPLIANT", False, False)),
 ]
+
+
+# ----------------------------------------------------------------------------------------- host-call helpers
+# Direct Mode runs the real SDK against genlayer-test's mock of the GenVM host.  Two gaps of that mock matter here, and both are
+# closed by wrapping `_genlayer_wasi.gl_call` in build_world() below (these helpers are plain functions so they can be tested
+# without any GenVM, see test_host_shims.py):
+#   1. it never moves money, so every outgoing native transfer must be recorded by the test itself;
+#   2. it parses a mocked JSON reply into a dict (genlayer-testing-suite issue #157), while the v0.4 SDK expects the host to
+#      answer `exec_prompt(..., response_format="json")` with TEXT and parses it itself ("JSON result is not text").
+TRACE_GL_CALLS = os.environ.get("LITMUS_TRACE_GL_CALLS") == "1"   # print the first request of every kind: pytest -s
+TRANSFER_REQUESTS = ("PostMessage", "EthSend")   # an emitted native transfer reaches the host as one of these requests
+
+
+def hex_address(address):
+    return (address.as_hex if hasattr(address, "as_hex") else "0x" + bytes(address).hex()).lower()
+
+
+def transfer_from_request(request):
+    """Describe the outgoing value transfer a decoded host request carries, or None for any other request.
+
+    PostMessage carries ``on`` (when the message is delivered); an EthSend to a wallet has none, so ``on`` is None there.
+    The v0.6 calldata ABI names the method key "" (older ABIs used "method"); a plain value transfer has no method at all.
+    """
+    if not isinstance(request, dict):
+        return None
+    for kind in TRANSFER_REQUESTS:
+        message = request.get(kind)
+        if isinstance(message, dict) and "address" in message and "value" in message:
+            body = message.get("calldata")
+            method = body.get("method", body.get("")) if isinstance(body, dict) else None
+            return {"to": hex_address(message["address"]), "value": int(message["value"]), "method": method,
+                    "on": message.get("on")}
+    return None
+
+
+def reply_as_text(calldata, request, reply):
+    """Hand a decoded JSON answer to an LLM request back as TEXT, like the real host does.
+
+    Everything else (other requests, text answers, errors, anything undecodable) is returned untouched.
+    """
+    if not (isinstance(request, dict) and any("ExecPrompt" in str(key) for key in request)):
+        return reply
+    try:
+        decoded = calldata.decode(reply)
+    except Exception:
+        return reply
+    if isinstance(decoded, dict) and set(decoded) == {"ok"} and isinstance(decoded["ok"], (dict, list)):
+        return calldata.encode({"ok": json.dumps(decoded["ok"], ensure_ascii=False)})
+    return reply
 
 
 class World:
@@ -195,20 +248,24 @@ def build_world(direct_deploy, direct_vm, direct_accounts, path=CONTRACT):
     w = World(direct_vm, direct_accounts, contract)
 
     import _genlayer_wasi as wasi
-    from genlayer.py import calldata
+    try:
+        from genlayer import calldata            # GenVM v0.4 SDK layout
+    except ImportError:                          # pragma: no cover - the v0.2 layout kept it under genlayer.py
+        from genlayer.py import calldata
     original = wasi.gl_call
+    traced = set()
 
     def spy(data, /):
         request = calldata.decode(data)
-        if isinstance(request, dict) and "PostMessage" in request:
-            message = request["PostMessage"]
-            address = message["address"]
-            hexed = (address.as_hex if hasattr(address, "as_hex") else "0x" + bytes(address).hex()).lower()
-            body = message.get("calldata")
-            # the v0.6 calldata ABI names the method key "" (older ABIs used "method"); a plain value transfer has none
-            method = (body.get("method", body.get("")) if isinstance(body, dict) else None)
-            w.transfers.append({"to": hexed, "value": int(message["value"]), "method": method, "on": message.get("on")})
-        return original(data)
+        if TRACE_GL_CALLS and isinstance(request, dict):
+            for key in request:
+                if key not in traced:
+                    traced.add(key)
+                    print(f"[gl_call] {key}: {request[key]!r}"[:300], file=sys.stderr)
+        transfer = transfer_from_request(request)
+        if transfer is not None:
+            w.transfers.append(transfer)
+        return reply_as_text(calldata, request, original(data))
 
     wasi.gl_call = spy
     try:
