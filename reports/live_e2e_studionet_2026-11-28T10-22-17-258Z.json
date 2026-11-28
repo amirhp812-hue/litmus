@@ -1,0 +1,2117 @@
+{
+  "tool": "litmus-live-e2e",
+  "mode": "studionet",
+  "rpc": "https://studio.genlayer.com/api",
+  "startedAt": "2026-11-28T10:22:17.258Z",
+  "contract": "0x7942816B0D37Cb141aAd46527692c6bff9F42Eea",
+  "accounts": {
+    "author": "0x69c56b2e2cf5226bc77d6b0fe8afd803f5d3225c",
+    "plaintiff": "0x13e7833027bf08b5e15c9d6d0a3d9646d8e7a29f",
+    "defendant": "0x7785cefebc892ea45d8023fdbbdae67a57429cd7",
+    "observer": "0x0f1821f9a9330398c4afeb3e72501acf02865ea1",
+    "outsider": "0x5bea91e31701c2d2ccc6c82b772e624744700ffb"
+  },
+  "checks": [
+    {
+      "id": "C001",
+      "status": "PASS",
+      "name": "RPC reachable",
+      "detail": "https://studio.genlayer.com/api"
+    },
+    {
+      "id": "C002",
+      "status": "PASS",
+      "name": "chain id is 61999 (Studionet, Studio v0.123 / Consensus v0.6)",
+      "detail": "https://studio.genlayer.com/api"
+    },
+    {
+      "id": "C003",
+      "status": "PASS",
+      "name": "accounts created and funded",
+      "detail": "author=0x69c56b2e2cf5226bc77d6b0fe8afd803f5d3225c plaintiff=0x13e7833027bf08b5e15c9d6d0a3d9646d8e7a29f defendant=0x7785cefebc892ea45d8023fdbbdae67a57429cd7 observer=0x0f1821f9a9330398c4afeb3e72501acf02865ea1 outsider=0x5bea91e31701c2d2ccc6c82b772e624744700ffb"
+    },
+    {
+      "id": "C004",
+      "status": "INFO",
+      "name": "network diagnostics before deploy",
+      "detail": "{\"chainId\":\"0xf22f\",\"validators\":20,\"deployerBalanceWei\":\"20000000000000000000\"}"
+    },
+    {
+      "id": "C005",
+      "status": "PASS",
+      "name": "contract source is LF-only and BOM-free",
+      "detail": "sha256=2449db5590d94b3d521d9fffe0f6c677f026a79786033ff31d23613847707088 bytes=36275"
+    },
+    {
+      "id": "C006",
+      "status": "PASS",
+      "name": "deployed Litmus",
+      "detail": "0x7942816B0D37Cb141aAd46527692c6bff9F42Eea status=ACCEPTED"
+    },
+    {
+      "id": "C007",
+      "status": "PASS",
+      "name": "fresh state reads back",
+      "detail": "{\"cases\":0,\"claimable_total\":\"0\",\"escrow_total\":\"0\",\"rules\":0}"
+    },
+    {
+      "id": "C008",
+      "status": "PASS",
+      "name": "deployed bytes equal the committed source",
+      "detail": "36275 bytes"
+    },
+    {
+      "id": "C009",
+      "status": "PASS",
+      "name": "limits expose min_probes",
+      "detail": "4"
+    },
+    {
+      "id": "C010",
+      "status": "PASS",
+      "name": "limits expose the seven-day void window",
+      "detail": "604800"
+    },
+    {
+      "id": "C011",
+      "status": "PASS",
+      "name": "forge_rule rejects three probes (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C012",
+      "status": "PASS",
+      "name": "forge_rule rejects a bond below three penalty units (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C013",
+      "status": "PASS",
+      "name": "forge_rule rejects a stake that cannot cover the maximum penalty (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C014",
+      "status": "INFO",
+      "name": "contract balance right after the three rejected forges",
+      "detail": "14999999999999999 wei above the balance before them; the script attached 14999999999999999 wei to them. The audit below waits for finalization and then says whether that value was returned or kept."
+    },
+    {
+      "id": "C015",
+      "status": "PASS",
+      "name": "forge_rule (main rule)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C016",
+      "status": "PASS",
+      "name": "rule status is DRAFT",
+      "detail": "DRAFT"
+    },
+    {
+      "id": "C017",
+      "status": "PASS",
+      "name": "rule author",
+      "detail": "0x69c56b2e2cf5226bc77d6b0fe8afd803f5d3225c"
+    },
+    {
+      "id": "C018",
+      "status": "PASS",
+      "name": "bond escrowed exactly",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C019",
+      "status": "PASS",
+      "name": "probes start pending",
+      "detail": "PENDING,PENDING,PENDING,PENDING,PENDING"
+    },
+    {
+      "id": "C020",
+      "status": "PASS",
+      "name": "run_probe rejected for a non-author (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C021",
+      "status": "PASS",
+      "name": "certify_rule rejected before every probe ran (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C022",
+      "status": "PASS",
+      "name": "audit after forge: books balance",
+      "detail": "escrow=6000000000000000 recomputed=6000000000000000 claimable=0/0 contract_balance=6000000000000000"
+    },
+    {
+      "id": "C023",
+      "status": "PASS",
+      "name": "audit after forge: contract balance equals escrow",
+      "detail": "balance 6000000000000000 = escrow 6000000000000000"
+    },
+    {
+      "id": "C024",
+      "status": "PASS",
+      "name": "run_probe 0 (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C025",
+      "status": "PASS",
+      "name": "probe 0 result PASS",
+      "detail": "expected BREACH [false,false]; validators agreed on BREACH [false,false]"
+    },
+    {
+      "id": "C026",
+      "status": "PASS",
+      "name": "run_probe 1 (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=IDLE/AGREE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C027",
+      "status": "PASS",
+      "name": "probe 1 result PASS",
+      "detail": "expected BREACH [true,false]; validators agreed on BREACH [true,false]"
+    },
+    {
+      "id": "C028",
+      "status": "PASS",
+      "name": "run_probe 2 (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/AGREE/DISAGREE"
+    },
+    {
+      "id": "C029",
+      "status": "PASS",
+      "name": "probe 2 result PASS",
+      "detail": "expected BREACH [false,true]; validators agreed on BREACH [false,true]"
+    },
+    {
+      "id": "C030",
+      "status": "PASS",
+      "name": "run_probe 3 (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C031",
+      "status": "PASS",
+      "name": "probe 3 result PASS",
+      "detail": "expected COMPLIANT [false,false]; validators agreed on COMPLIANT [false,false]"
+    },
+    {
+      "id": "C032",
+      "status": "PASS",
+      "name": "run_probe 4 (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C033",
+      "status": "PASS",
+      "name": "probe 4 result PASS",
+      "detail": "expected COMPLIANT [false,false]; validators agreed on COMPLIANT [false,false]"
+    },
+    {
+      "id": "C034",
+      "status": "PASS",
+      "name": "run_probe cannot run twice (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C035",
+      "status": "PASS",
+      "name": "certify_rule",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/IDLE/AGREE/IDLE"
+    },
+    {
+      "id": "C036",
+      "status": "PASS",
+      "name": "clarity is floor(passed*100/total)",
+      "detail": "100"
+    },
+    {
+      "id": "C037",
+      "status": "PASS",
+      "name": "stored digest equals the locally computed digest",
+      "detail": "43f9d7b10283cefcd6a76c95c4043001ff41aa099999bade78144d5c1bde66c4"
+    },
+    {
+      "id": "C038",
+      "status": "PASS",
+      "name": "revise_rule rejected on a certified rule (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C039",
+      "status": "PASS",
+      "name": "enlist rejected with a stake that is one wei short (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C040",
+      "status": "PASS",
+      "name": "enlist plaintiff",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C041",
+      "status": "PASS",
+      "name": "plaintiff stake escrowed",
+      "detail": "9000000000000000"
+    },
+    {
+      "id": "C042",
+      "status": "PASS",
+      "name": "enlist defendant",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C043",
+      "status": "PASS",
+      "name": "defendant stake escrowed",
+      "detail": "9000000000000000"
+    },
+    {
+      "id": "C044",
+      "status": "PASS",
+      "name": "enlist observer",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/IDLE/IDLE/AGREE"
+    },
+    {
+      "id": "C045",
+      "status": "PASS",
+      "name": "observer stake escrowed",
+      "detail": "9000000000000000"
+    },
+    {
+      "id": "C046",
+      "status": "PASS",
+      "name": "enlist twice rejected (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C047",
+      "status": "PASS",
+      "name": "rule counts three active members",
+      "detail": "3"
+    },
+    {
+      "id": "C048",
+      "status": "PASS",
+      "name": "audit after enlist: books balance",
+      "detail": "escrow=33000000000000000 recomputed=33000000000000000 claimable=0/0 contract_balance=42000000000000000"
+    },
+    {
+      "id": "C049",
+      "status": "PASS",
+      "name": "audit after enlist: contract balance equals escrow once rejected-call value was returned",
+      "detail": "9000000000000000 wei above the escrow at the first read; balance = escrow 33000000000000000 after finalization"
+    },
+    {
+      "id": "C050",
+      "status": "SKIP",
+      "name": "timeout case T (two waiting windows)",
+      "detail": "--skip-slow"
+    },
+    {
+      "id": "C051",
+      "status": "PASS",
+      "name": "file_case rejected with the wrong deposit (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C052",
+      "status": "PASS",
+      "name": "file_case rejected against oneself (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C053",
+      "status": "PASS",
+      "name": "file_case rejected for a non-member defendant (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C054",
+      "status": "PASS",
+      "name": "file_case A",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/AGREE/AGREE"
+    },
+    {
+      "id": "C055",
+      "status": "PASS",
+      "name": "case A is OPEN with the deposit escrowed",
+      "detail": "OPEN/100000000000000"
+    },
+    {
+      "id": "C056",
+      "status": "PASS",
+      "name": "case A: defendant stake reserved",
+      "detail": "3000000000000000"
+    },
+    {
+      "id": "C057",
+      "status": "PASS",
+      "name": "rule_case rejected while the defense window is open (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C058",
+      "status": "PASS",
+      "name": "submit_defense rejected for the plaintiff (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C059",
+      "status": "PASS",
+      "name": "submit_defense A",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/IDLE/IDLE/AGREE"
+    },
+    {
+      "id": "C060",
+      "status": "PASS",
+      "name": "rule_case A (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/AGREE/IDLE/IDLE"
+    },
+    {
+      "id": "C061",
+      "status": "PASS",
+      "name": "case A: severity derives from the agreed flags",
+      "detail": "BREACH [true,true] severity 3"
+    },
+    {
+      "id": "C062",
+      "status": "PASS",
+      "name": "case A: validators' ruling vs the designed expectation",
+      "detail": "designed BREACH [true,true], agreed BREACH [true,true]"
+    },
+    {
+      "id": "C063",
+      "status": "PASS",
+      "name": "settle_case A rejected while the appeal window is open (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C064",
+      "status": "PASS",
+      "name": "waive_appeal A rejected for the winning party (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C065",
+      "status": "PASS",
+      "name": "waive_appeal A",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C066",
+      "status": "PASS",
+      "name": "settle_case A",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C067",
+      "status": "PASS",
+      "name": "case A settled",
+      "detail": "SETTLED"
+    },
+    {
+      "id": "C068",
+      "status": "PASS",
+      "name": "case A: final severity",
+      "detail": "3"
+    },
+    {
+      "id": "C069",
+      "status": "PASS",
+      "name": "case A: penalty equals unit x severity",
+      "detail": "3000000000000000"
+    },
+    {
+      "id": "C070",
+      "status": "PASS",
+      "name": "case A: credit to plaintiff",
+      "detail": "3100000000000000"
+    },
+    {
+      "id": "C071",
+      "status": "PASS",
+      "name": "case A: credit to defendant",
+      "detail": "0"
+    },
+    {
+      "id": "C072",
+      "status": "PASS",
+      "name": "case A: defendant stake after penalty",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C073",
+      "status": "PASS",
+      "name": "case A: defendant strikes",
+      "detail": "1"
+    },
+    {
+      "id": "C074",
+      "status": "PASS",
+      "name": "case A: reservation released",
+      "detail": "0"
+    },
+    {
+      "id": "C075",
+      "status": "PASS",
+      "name": "case A: open-case counters released",
+      "detail": "0/0"
+    },
+    {
+      "id": "C076",
+      "status": "PASS",
+      "name": "case A: rule counter breaches",
+      "detail": "1"
+    },
+    {
+      "id": "C077",
+      "status": "PASS",
+      "name": "case A: bond after slash",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C078",
+      "status": "PASS",
+      "name": "case A: reversals",
+      "detail": "0"
+    },
+    {
+      "id": "C079",
+      "status": "PASS",
+      "name": "audit after case A: books balance",
+      "detail": "escrow=33100000000000000 recomputed=33100000000000000 claimable=3100000000000000/3100000000000000 contract_balance=33100000000000000"
+    },
+    {
+      "id": "C080",
+      "status": "PASS",
+      "name": "audit after case A: contract balance equals escrow",
+      "detail": "balance 33100000000000000 = escrow 33100000000000000"
+    },
+    {
+      "id": "C081",
+      "status": "PASS",
+      "name": "file_case B",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C082",
+      "status": "PASS",
+      "name": "case B is OPEN with the deposit escrowed",
+      "detail": "OPEN/100000000000000"
+    },
+    {
+      "id": "C083",
+      "status": "PASS",
+      "name": "case B: defendant stake reserved",
+      "detail": "3000000000000000"
+    },
+    {
+      "id": "C084",
+      "status": "PASS",
+      "name": "submit_defense B",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/IDLE/IDLE/AGREE"
+    },
+    {
+      "id": "C085",
+      "status": "PASS",
+      "name": "rule_case B (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C086",
+      "status": "PASS",
+      "name": "case B: severity derives from the agreed flags",
+      "detail": "COMPLIANT [false,false] severity 0"
+    },
+    {
+      "id": "C087",
+      "status": "PASS",
+      "name": "case B: validators' ruling vs the designed expectation",
+      "detail": "designed COMPLIANT [false,false], agreed COMPLIANT [false,false]"
+    },
+    {
+      "id": "C088",
+      "status": "PASS",
+      "name": "settle_case B rejected while the appeal window is open (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C089",
+      "status": "PASS",
+      "name": "waive_appeal B rejected for the winning party (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C090",
+      "status": "PASS",
+      "name": "waive_appeal B",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C091",
+      "status": "PASS",
+      "name": "settle_case B",
+      "detail": "status=ACCEPTED exec=true votes=IDLE/IDLE/AGREE/AGREE/AGREE"
+    },
+    {
+      "id": "C092",
+      "status": "PASS",
+      "name": "case B settled",
+      "detail": "SETTLED"
+    },
+    {
+      "id": "C093",
+      "status": "PASS",
+      "name": "case B: final severity",
+      "detail": "0"
+    },
+    {
+      "id": "C094",
+      "status": "PASS",
+      "name": "case B: penalty equals unit x severity",
+      "detail": "0"
+    },
+    {
+      "id": "C095",
+      "status": "PASS",
+      "name": "case B: credit to plaintiff",
+      "detail": "0"
+    },
+    {
+      "id": "C096",
+      "status": "PASS",
+      "name": "case B: credit to defendant",
+      "detail": "100000000000000"
+    },
+    {
+      "id": "C097",
+      "status": "PASS",
+      "name": "case B: defendant stake after penalty",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C098",
+      "status": "PASS",
+      "name": "case B: defendant strikes",
+      "detail": "1"
+    },
+    {
+      "id": "C099",
+      "status": "PASS",
+      "name": "case B: reservation released",
+      "detail": "0"
+    },
+    {
+      "id": "C100",
+      "status": "PASS",
+      "name": "case B: open-case counters released",
+      "detail": "0/0"
+    },
+    {
+      "id": "C101",
+      "status": "PASS",
+      "name": "case B: rule counter dismissed",
+      "detail": "1"
+    },
+    {
+      "id": "C102",
+      "status": "PASS",
+      "name": "case B: bond after slash",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C103",
+      "status": "PASS",
+      "name": "case B: reversals",
+      "detail": "0"
+    },
+    {
+      "id": "C104",
+      "status": "PASS",
+      "name": "audit after case B: books balance",
+      "detail": "escrow=33200000000000000 recomputed=33200000000000000 claimable=3200000000000000/3200000000000000 contract_balance=33200000000000000"
+    },
+    {
+      "id": "C105",
+      "status": "PASS",
+      "name": "audit after case B: contract balance equals escrow",
+      "detail": "balance 33200000000000000 = escrow 33200000000000000"
+    },
+    {
+      "id": "C106",
+      "status": "PASS",
+      "name": "file_case C",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C107",
+      "status": "PASS",
+      "name": "case C is OPEN with the deposit escrowed",
+      "detail": "OPEN/100000000000000"
+    },
+    {
+      "id": "C108",
+      "status": "PASS",
+      "name": "case C: defendant stake reserved",
+      "detail": "3000000000000000"
+    },
+    {
+      "id": "C109",
+      "status": "PASS",
+      "name": "submit_defense C",
+      "detail": "status=ACCEPTED exec=true votes=IDLE/AGREE/AGREE/AGREE/AGREE"
+    },
+    {
+      "id": "C110",
+      "status": "PASS",
+      "name": "rule_case C (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C111",
+      "status": "PASS",
+      "name": "case C: severity derives from the agreed flags",
+      "detail": "BREACH [false,false] severity 1"
+    },
+    {
+      "id": "C112",
+      "status": "PASS",
+      "name": "case C: validators' ruling vs the designed expectation",
+      "detail": "designed BREACH [false,false], agreed BREACH [false,false]"
+    },
+    {
+      "id": "C113",
+      "status": "PASS",
+      "name": "appeal_case C rejected for the party that won (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C114",
+      "status": "PASS",
+      "name": "appeal_case C rejected with the wrong deposit (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C115",
+      "status": "PASS",
+      "name": "appeal_case C (model, exact consensus)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C116",
+      "status": "PASS",
+      "name": "case C settled",
+      "detail": "SETTLED"
+    },
+    {
+      "id": "C117",
+      "status": "PASS",
+      "name": "case C: final severity",
+      "detail": "1"
+    },
+    {
+      "id": "C118",
+      "status": "PASS",
+      "name": "case C: penalty equals unit x severity",
+      "detail": "1000000000000000"
+    },
+    {
+      "id": "C119",
+      "status": "PASS",
+      "name": "case C: reversed flag matches the appeal outcome",
+      "detail": "false"
+    },
+    {
+      "id": "C120",
+      "status": "PASS",
+      "name": "case C: credit to plaintiff",
+      "detail": "1200000000000000"
+    },
+    {
+      "id": "C121",
+      "status": "PASS",
+      "name": "case C: credit to defendant",
+      "detail": "0"
+    },
+    {
+      "id": "C122",
+      "status": "PASS",
+      "name": "case C: defendant stake after penalty",
+      "detail": "5000000000000000"
+    },
+    {
+      "id": "C123",
+      "status": "PASS",
+      "name": "case C: defendant strikes",
+      "detail": "2"
+    },
+    {
+      "id": "C124",
+      "status": "PASS",
+      "name": "case C: reservation released",
+      "detail": "0"
+    },
+    {
+      "id": "C125",
+      "status": "PASS",
+      "name": "case C: open-case counters released",
+      "detail": "0/0"
+    },
+    {
+      "id": "C126",
+      "status": "PASS",
+      "name": "case C: rule counter breaches",
+      "detail": "2"
+    },
+    {
+      "id": "C127",
+      "status": "PASS",
+      "name": "case C: bond after slash",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C128",
+      "status": "PASS",
+      "name": "case C: reversals",
+      "detail": "0"
+    },
+    {
+      "id": "C129",
+      "status": "PASS",
+      "name": "audit after case C: books balance",
+      "detail": "escrow=33400000000000000 recomputed=33400000000000000 claimable=4400000000000000/4400000000000000 contract_balance=33400000000000000"
+    },
+    {
+      "id": "C130",
+      "status": "PASS",
+      "name": "audit after case C: contract balance equals escrow",
+      "detail": "balance 33400000000000000 = escrow 33400000000000000"
+    },
+    {
+      "id": "C131",
+      "status": "PASS",
+      "name": "leave plaintiff",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C132",
+      "status": "PASS",
+      "name": "plaintiff stake released to the ledger",
+      "detail": "9000000000000000"
+    },
+    {
+      "id": "C133",
+      "status": "INFO",
+      "name": "plaintiff final membership status",
+      "detail": "LEFT"
+    },
+    {
+      "id": "C134",
+      "status": "PASS",
+      "name": "leave defendant",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C135",
+      "status": "PASS",
+      "name": "defendant stake released to the ledger",
+      "detail": "5000000000000000"
+    },
+    {
+      "id": "C136",
+      "status": "INFO",
+      "name": "defendant final membership status",
+      "detail": "LEFT"
+    },
+    {
+      "id": "C137",
+      "status": "PASS",
+      "name": "leave observer",
+      "detail": "status=ACCEPTED exec=true votes=IDLE/AGREE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C138",
+      "status": "PASS",
+      "name": "observer stake released to the ledger",
+      "detail": "9000000000000000"
+    },
+    {
+      "id": "C139",
+      "status": "INFO",
+      "name": "observer final membership status",
+      "detail": "LEFT"
+    },
+    {
+      "id": "C140",
+      "status": "PASS",
+      "name": "reclaim_bond rejected before retirement (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C141",
+      "status": "PASS",
+      "name": "retire_rule",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/AGREE/AGREE/IDLE"
+    },
+    {
+      "id": "C142",
+      "status": "PASS",
+      "name": "enlist rejected on a retired rule (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C143",
+      "status": "PASS",
+      "name": "reclaim_bond",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/AGREE/IDLE"
+    },
+    {
+      "id": "C144",
+      "status": "PASS",
+      "name": "bond remainder credited to the author",
+      "detail": "6000000000000000"
+    },
+    {
+      "id": "C145",
+      "status": "PASS",
+      "name": "audit before withdrawals: books balance",
+      "detail": "escrow=33400000000000000 recomputed=33400000000000000 claimable=33400000000000000/33400000000000000 contract_balance=42400000000000000"
+    },
+    {
+      "id": "C146",
+      "status": "PASS",
+      "name": "audit before withdrawals: contract balance equals escrow once rejected-call value was returned",
+      "detail": "9000000000000000 wei above the escrow at the first read; balance = escrow 33400000000000000 after finalization"
+    },
+    {
+      "id": "C147",
+      "status": "PASS",
+      "name": "withdraw author (0.006 GEN)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C148",
+      "status": "PASS",
+      "name": "author ledger cleared",
+      "detail": "0"
+    },
+    {
+      "id": "C149",
+      "status": "PASS",
+      "name": "withdraw plaintiff (0.0133 GEN)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/AGREE/IDLE/AGREE"
+    },
+    {
+      "id": "C150",
+      "status": "PASS",
+      "name": "plaintiff ledger cleared",
+      "detail": "0"
+    },
+    {
+      "id": "C151",
+      "status": "PASS",
+      "name": "withdraw defendant (0.0051 GEN)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/AGREE/IDLE/IDLE/AGREE"
+    },
+    {
+      "id": "C152",
+      "status": "PASS",
+      "name": "defendant ledger cleared",
+      "detail": "0"
+    },
+    {
+      "id": "C153",
+      "status": "PASS",
+      "name": "withdraw observer (0.009 GEN)",
+      "detail": "status=ACCEPTED exec=true votes=AGREE/IDLE/IDLE/AGREE/AGREE"
+    },
+    {
+      "id": "C154",
+      "status": "PASS",
+      "name": "observer ledger cleared",
+      "detail": "0"
+    },
+    {
+      "id": "C155",
+      "status": "PASS",
+      "name": "withdraw rejected when nothing is owed (rejected, state unchanged)",
+      "detail": "exec=false status=ACCEPTED"
+    },
+    {
+      "id": "C156",
+      "status": "PASS",
+      "name": "author: wallet balance received the withdrawal",
+      "detail": "net +405795041750008471 wei for 6000000000000000 withdrawn (the difference is the transaction fee); withdraw tx FINALIZED"
+    },
+    {
+      "id": "C157",
+      "status": "PASS",
+      "name": "plaintiff: wallet balance received the withdrawal",
+      "detail": "net +13173694749999177 wei for 13300000000000000 withdrawn (the difference is the transaction fee); withdraw tx FINALIZED"
+    },
+    {
+      "id": "C158",
+      "status": "PASS",
+      "name": "defendant: wallet balance received the withdrawal",
+      "detail": "net +4973694749999177 wei for 5100000000000000 withdrawn (the difference is the transaction fee); withdraw tx FINALIZED"
+    },
+    {
+      "id": "C159",
+      "status": "PASS",
+      "name": "observer: wallet balance received the withdrawal",
+      "detail": "net +8873694749999177 wei for 9000000000000000 withdrawn (the difference is the transaction fee); withdraw tx FINALIZED"
+    },
+    {
+      "id": "C160",
+      "status": "PASS",
+      "name": "escrow is zero after full wind-down",
+      "detail": "0"
+    },
+    {
+      "id": "C161",
+      "status": "PASS",
+      "name": "claimable is zero after full wind-down",
+      "detail": "0"
+    },
+    {
+      "id": "C162",
+      "status": "PASS",
+      "name": "contract balance is zero after full wind-down",
+      "detail": "balance 0"
+    },
+    {
+      "id": "C163",
+      "status": "INFO",
+      "name": "value attached to rejected payable calls was returned",
+      "detail": "42499999999999996 wei in total was attached to rejected calls and came back after finalization (the contract balance returned to the escrow). Attach the exact required amount anyway: it is only held until then."
+    }
+  ],
+  "txs": [
+    {
+      "label": "deploy",
+      "fn": "deploy",
+      "attempt": 1,
+      "hash": "0x649a1c42e51724863ddd1711aa915fffc34504fb351061d420dfcbb4d71930f5",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "link": "https://explorer-studio.genlayer.com/tx/0x649a1c42e51724863ddd1711aa915fffc34504fb351061d420dfcbb4d71930f5"
+    },
+    {
+      "label": "forge_rule rejects three probes",
+      "fn": "forge_rule",
+      "attempt": 1,
+      "hash": "0x3a33111ed4aec76a7d6fcd3b4b750dd5d355672f753c688ccf8ef19db79b99f9",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 9,
+      "link": "https://explorer-studio.genlayer.com/tx/0x3a33111ed4aec76a7d6fcd3b4b750dd5d355672f753c688ccf8ef19db79b99f9"
+    },
+    {
+      "label": "forge_rule rejects a bond below three penalty units",
+      "fn": "forge_rule",
+      "attempt": 1,
+      "hash": "0xc735123c4d95c4fea704eb490817dc48b52e96e4f23e00ce8acae2d84b83db06",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xc735123c4d95c4fea704eb490817dc48b52e96e4f23e00ce8acae2d84b83db06"
+    },
+    {
+      "label": "forge_rule rejects a stake that cannot cover the maximum penalty",
+      "fn": "forge_rule",
+      "attempt": 1,
+      "hash": "0x5764ddf7507af101b49f834b1b2aced1127c3848b07c6b3455acbf9511c4f8bc",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 9,
+      "link": "https://explorer-studio.genlayer.com/tx/0x5764ddf7507af101b49f834b1b2aced1127c3848b07c6b3455acbf9511c4f8bc"
+    },
+    {
+      "label": "forge_rule (main rule)",
+      "fn": "forge_rule",
+      "attempt": 1,
+      "hash": "0xe6a19f45f0515056b1ee388be32d8266204fbc7701fe5ddd1f7e1b07b0b2f37d",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xe6a19f45f0515056b1ee388be32d8266204fbc7701fe5ddd1f7e1b07b0b2f37d"
+    },
+    {
+      "label": "run_probe rejected for a non-author",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0x019dba2ded537eb68501e86143d59eec1aae4270102dedc2d742b3eb0f1264a0",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x019dba2ded537eb68501e86143d59eec1aae4270102dedc2d742b3eb0f1264a0"
+    },
+    {
+      "label": "certify_rule rejected before every probe ran",
+      "fn": "certify_rule",
+      "attempt": 1,
+      "hash": "0xb8ddacdd9431f7acc9c2259ae184179cb3d64f466c960188192aa28eb8ff9028",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0xb8ddacdd9431f7acc9c2259ae184179cb3d64f466c960188192aa28eb8ff9028"
+    },
+    {
+      "label": "run_probe 0 (model, exact consensus)",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0x2ca5036022cf2db2dd091ab4d888271aa1acc396effd1d542f19e51c503666fc",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 25,
+      "link": "https://explorer-studio.genlayer.com/tx/0x2ca5036022cf2db2dd091ab4d888271aa1acc396effd1d542f19e51c503666fc"
+    },
+    {
+      "label": "run_probe 1 (model, exact consensus)",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0x460f1f05ef68e7e4c329ab169dab8c5d1755ef929eb0e0012699a4c3a0925a21",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 14,
+      "link": "https://explorer-studio.genlayer.com/tx/0x460f1f05ef68e7e4c329ab169dab8c5d1755ef929eb0e0012699a4c3a0925a21"
+    },
+    {
+      "label": "run_probe 2 (model, exact consensus)",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0xcde501d8b957d0b7ef5441e1a6503b627e17487f292591d0a66fc29e23efd647",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "DISAGREE"
+      ],
+      "seconds": 19,
+      "link": "https://explorer-studio.genlayer.com/tx/0xcde501d8b957d0b7ef5441e1a6503b627e17487f292591d0a66fc29e23efd647"
+    },
+    {
+      "label": "run_probe 3 (model, exact consensus)",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0xbdb3ba133c020eb864e2719765438bfef44133b44f65052c71386ea6f620499e",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 21,
+      "link": "https://explorer-studio.genlayer.com/tx/0xbdb3ba133c020eb864e2719765438bfef44133b44f65052c71386ea6f620499e"
+    },
+    {
+      "label": "run_probe 4 (model, exact consensus)",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0x0e11f7b08488226f2c5524654e41f87781381cceab395f07f7ab0f5599b979de",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 14,
+      "link": "https://explorer-studio.genlayer.com/tx/0x0e11f7b08488226f2c5524654e41f87781381cceab395f07f7ab0f5599b979de"
+    },
+    {
+      "label": "run_probe cannot run twice",
+      "fn": "run_probe",
+      "attempt": 1,
+      "hash": "0xc770927c24ad4c5e4904d03db1437188eb9be74356f7a9d8a7c2f8fcef093910",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xc770927c24ad4c5e4904d03db1437188eb9be74356f7a9d8a7c2f8fcef093910"
+    },
+    {
+      "label": "certify_rule",
+      "fn": "certify_rule",
+      "attempt": 1,
+      "hash": "0x6d6c2f5e15cf08b8507d36f17ba69cce9c32a643c15735cbb52aa1052ee0a4f0",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x6d6c2f5e15cf08b8507d36f17ba69cce9c32a643c15735cbb52aa1052ee0a4f0"
+    },
+    {
+      "label": "revise_rule rejected on a certified rule",
+      "fn": "revise_rule",
+      "attempt": 1,
+      "hash": "0x3b99fdc307256c411b78d1c45c4e32a6ba679876a8f27d930e083be4f091051e",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x3b99fdc307256c411b78d1c45c4e32a6ba679876a8f27d930e083be4f091051e"
+    },
+    {
+      "label": "enlist rejected with a stake that is one wei short",
+      "fn": "enlist",
+      "attempt": 1,
+      "hash": "0xdc42e9700d6a86b02fe0d758b1eb5d91c6e4598a52d55c71cd8f6293b802af81",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xdc42e9700d6a86b02fe0d758b1eb5d91c6e4598a52d55c71cd8f6293b802af81"
+    },
+    {
+      "label": "enlist plaintiff",
+      "fn": "enlist",
+      "attempt": 1,
+      "hash": "0x1b963f09911e56a6923857ee66641a2e142afcc4b0c90db85edc6b8e71d2deeb",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x1b963f09911e56a6923857ee66641a2e142afcc4b0c90db85edc6b8e71d2deeb"
+    },
+    {
+      "label": "enlist defendant",
+      "fn": "enlist",
+      "attempt": 1,
+      "hash": "0x6d088d318e672238db4fde786df04bb8342313b74177dab65f566fc871215a45",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x6d088d318e672238db4fde786df04bb8342313b74177dab65f566fc871215a45"
+    },
+    {
+      "label": "enlist observer",
+      "fn": "enlist",
+      "attempt": 1,
+      "hash": "0x56b28f0f3458cdef0eb03891a32ca3d403aec016a6773b0ad40777a3264466bc",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0x56b28f0f3458cdef0eb03891a32ca3d403aec016a6773b0ad40777a3264466bc"
+    },
+    {
+      "label": "enlist twice rejected",
+      "fn": "enlist",
+      "attempt": 1,
+      "hash": "0xd83ec62297dabcb31d8e61b1f97029f7753072c24e39f773019417f0ad514927",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0xd83ec62297dabcb31d8e61b1f97029f7753072c24e39f773019417f0ad514927"
+    },
+    {
+      "label": "file_case rejected with the wrong deposit",
+      "fn": "file_case",
+      "attempt": 1,
+      "hash": "0x9ee720d8276ae796f9681acc3e9b5a70f6628ea5f06dbf6d9032b9c4bde2a445",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 9,
+      "link": "https://explorer-studio.genlayer.com/tx/0x9ee720d8276ae796f9681acc3e9b5a70f6628ea5f06dbf6d9032b9c4bde2a445"
+    },
+    {
+      "label": "file_case rejected against oneself",
+      "fn": "file_case",
+      "attempt": 1,
+      "hash": "0x8f4039ac738d0c83b3ee3a3ef78625da7f914b3a977963782d73dee4e877517e",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x8f4039ac738d0c83b3ee3a3ef78625da7f914b3a977963782d73dee4e877517e"
+    },
+    {
+      "label": "file_case rejected for a non-member defendant",
+      "fn": "file_case",
+      "attempt": 1,
+      "hash": "0xfa0ba63eaef329db022f5341bde1eded27cede0ad3caf91fe3b5c4c992c8b023",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0xfa0ba63eaef329db022f5341bde1eded27cede0ad3caf91fe3b5c4c992c8b023"
+    },
+    {
+      "label": "file_case A",
+      "fn": "file_case",
+      "attempt": 1,
+      "hash": "0x2798efcf5ecf5a3eba6729918ecce4047ca2b18accfe92877435391744604bbf",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x2798efcf5ecf5a3eba6729918ecce4047ca2b18accfe92877435391744604bbf"
+    },
+    {
+      "label": "rule_case rejected while the defense window is open",
+      "fn": "rule_case",
+      "attempt": 1,
+      "hash": "0xdfc9ab01572b224538b734b41c1946fe01af413f58933ecdee3b366dbded65b0",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE"
+      ],
+      "seconds": 13,
+      "link": "https://explorer-studio.genlayer.com/tx/0xdfc9ab01572b224538b734b41c1946fe01af413f58933ecdee3b366dbded65b0"
+    },
+    {
+      "label": "submit_defense rejected for the plaintiff",
+      "fn": "submit_defense",
+      "attempt": 1,
+      "hash": "0x7baf1128158bd31933345ba1a217fb837fa7c3e1335198723a0878d3a3789acb",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x7baf1128158bd31933345ba1a217fb837fa7c3e1335198723a0878d3a3789acb"
+    },
+    {
+      "label": "submit_defense A",
+      "fn": "submit_defense",
+      "attempt": 1,
+      "hash": "0x65b2915b88c383910b2468ad1f46ed83f3ce7265ca6630fd483a633c2cc840af",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x65b2915b88c383910b2468ad1f46ed83f3ce7265ca6630fd483a633c2cc840af"
+    },
+    {
+      "label": "rule_case A (model, exact consensus)",
+      "fn": "rule_case",
+      "attempt": 1,
+      "hash": "0xc3e850b75f056e6bc0d98e3c7e17c652ca75130fe1631a4f9d8c5242aa2c8c12",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ],
+      "seconds": 19,
+      "link": "https://explorer-studio.genlayer.com/tx/0xc3e850b75f056e6bc0d98e3c7e17c652ca75130fe1631a4f9d8c5242aa2c8c12"
+    },
+    {
+      "label": "settle_case A rejected while the appeal window is open",
+      "fn": "settle_case",
+      "attempt": 1,
+      "hash": "0x169de644fa7b0c505d3fdab5a555455e6d052e7d27ab000cdd843a808373ea4f",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x169de644fa7b0c505d3fdab5a555455e6d052e7d27ab000cdd843a808373ea4f"
+    },
+    {
+      "label": "waive_appeal A rejected for the winning party",
+      "fn": "waive_appeal",
+      "attempt": 1,
+      "hash": "0x07995be60daca3df3d1f9cc67972eb769d2eb8f1e24a4a0cfc6c553c0ab15d30",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE"
+      ],
+      "seconds": 10,
+      "link": "https://explorer-studio.genlayer.com/tx/0x07995be60daca3df3d1f9cc67972eb769d2eb8f1e24a4a0cfc6c553c0ab15d30"
+    },
+    {
+      "label": "waive_appeal A",
+      "fn": "waive_appeal",
+      "attempt": 1,
+      "hash": "0xd673442da68c3a02ed617d1ac026e825d7bbf7c1915a38624e0ec43b0f774c00",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 9,
+      "link": "https://explorer-studio.genlayer.com/tx/0xd673442da68c3a02ed617d1ac026e825d7bbf7c1915a38624e0ec43b0f774c00"
+    },
+    {
+      "label": "settle_case A",
+      "fn": "settle_case",
+      "attempt": 1,
+      "hash": "0xa807430dcf9ebb22106760f3c331b0e6421a8fa18be9e8568401afabcd45d707",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0xa807430dcf9ebb22106760f3c331b0e6421a8fa18be9e8568401afabcd45d707"
+    },
+    {
+      "label": "file_case B",
+      "fn": "file_case",
+      "attempt": 1,
+      "hash": "0xd3a8b8009990f135a3553829ede2ea78c23d060cdc15fb9b9d41684670168c1a",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 9,
+      "link": "https://explorer-studio.genlayer.com/tx/0xd3a8b8009990f135a3553829ede2ea78c23d060cdc15fb9b9d41684670168c1a"
+    },
+    {
+      "label": "submit_defense B",
+      "fn": "submit_defense",
+      "attempt": 1,
+      "hash": "0x2e9e28c77191bca4319650f19cb861668268b3957cfbd721b65b646f724c1260",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 13,
+      "link": "https://explorer-studio.genlayer.com/tx/0x2e9e28c77191bca4319650f19cb861668268b3957cfbd721b65b646f724c1260"
+    },
+    {
+      "label": "rule_case B (model, exact consensus)",
+      "fn": "rule_case",
+      "attempt": 1,
+      "hash": "0x8e485ffe2d62e807042a0b3a24d941c8f8316ccf3accea889793b2f48414dabd",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 25,
+      "link": "https://explorer-studio.genlayer.com/tx/0x8e485ffe2d62e807042a0b3a24d941c8f8316ccf3accea889793b2f48414dabd"
+    },
+    {
+      "label": "settle_case B rejected while the appeal window is open",
+      "fn": "settle_case",
+      "attempt": 1,
+      "hash": "0x5fe0518ba40303d6addd011959fd21eecbcd79e6904e3fc9ae81a11689ccaef4",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x5fe0518ba40303d6addd011959fd21eecbcd79e6904e3fc9ae81a11689ccaef4"
+    },
+    {
+      "label": "waive_appeal B rejected for the winning party",
+      "fn": "waive_appeal",
+      "attempt": 1,
+      "hash": "0xb5638d7632aefe16283caf8a40609874ede7d3f35edfaab44cfb276b13e25ce3",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0xb5638d7632aefe16283caf8a40609874ede7d3f35edfaab44cfb276b13e25ce3"
+    },
+    {
+      "label": "waive_appeal B",
+      "fn": "waive_appeal",
+      "attempt": 1,
+      "hash": "0x7b2fbc0a45f9c1ee0b57584d36b8314e458b163168ad7863cef63ef85caa5d71",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x7b2fbc0a45f9c1ee0b57584d36b8314e458b163168ad7863cef63ef85caa5d71"
+    },
+    {
+      "label": "settle_case B",
+      "fn": "settle_case",
+      "attempt": 1,
+      "hash": "0xff611ac86a9e36336499fa8236c9eabf0c00e59be340bdf71b6eb61ed7247903",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xff611ac86a9e36336499fa8236c9eabf0c00e59be340bdf71b6eb61ed7247903"
+    },
+    {
+      "label": "file_case C",
+      "fn": "file_case",
+      "attempt": 1,
+      "hash": "0xa0fa2e1e01ab98e04ae249bdec9f81fb011442988f5db8de2008dbd3eb2b82dd",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xa0fa2e1e01ab98e04ae249bdec9f81fb011442988f5db8de2008dbd3eb2b82dd"
+    },
+    {
+      "label": "submit_defense C",
+      "fn": "submit_defense",
+      "attempt": 1,
+      "hash": "0xe7ddd4285f9d982617cfd93b5ba8cdca07832c504f0b3ef9b20ee4800a380daf",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 24,
+      "link": "https://explorer-studio.genlayer.com/tx/0xe7ddd4285f9d982617cfd93b5ba8cdca07832c504f0b3ef9b20ee4800a380daf"
+    },
+    {
+      "label": "rule_case C (model, exact consensus)",
+      "fn": "rule_case",
+      "attempt": 1,
+      "hash": "0x20fa63f4ca4c01c653fe7cf991c40c0604e6bda06214fc111e92569e1fcc9651",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 19,
+      "link": "https://explorer-studio.genlayer.com/tx/0x20fa63f4ca4c01c653fe7cf991c40c0604e6bda06214fc111e92569e1fcc9651"
+    },
+    {
+      "label": "appeal_case C rejected for the party that won",
+      "fn": "appeal_case",
+      "attempt": 1,
+      "hash": "0x9cc38e65d251ab26e644b258e052c4651224b7fd796a1f5df35f05e884725103",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0x9cc38e65d251ab26e644b258e052c4651224b7fd796a1f5df35f05e884725103"
+    },
+    {
+      "label": "appeal_case C rejected with the wrong deposit",
+      "fn": "appeal_case",
+      "attempt": 1,
+      "hash": "0xe2263359c8a2e3c9ad1640bfcf3acfabc901d0265ff7cd453b96e6279203a4e9",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0xe2263359c8a2e3c9ad1640bfcf3acfabc901d0265ff7cd453b96e6279203a4e9"
+    },
+    {
+      "label": "appeal_case C (model, exact consensus)",
+      "fn": "appeal_case",
+      "attempt": 1,
+      "hash": "0xc4cd28ccc05ad0e80d0004a61af8fd1a433b100451bb766664cea81e82a25dec",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 19,
+      "link": "https://explorer-studio.genlayer.com/tx/0xc4cd28ccc05ad0e80d0004a61af8fd1a433b100451bb766664cea81e82a25dec"
+    },
+    {
+      "label": "leave plaintiff",
+      "fn": "leave",
+      "attempt": 1,
+      "hash": "0xe465f6c4800b25b173a0176080cec042d2feef91e995cc18e4c55ab9c730b0a4",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0xe465f6c4800b25b173a0176080cec042d2feef91e995cc18e4c55ab9c730b0a4"
+    },
+    {
+      "label": "leave defendant",
+      "fn": "leave",
+      "attempt": 1,
+      "hash": "0x2f82ee8b95646a42b7ec35fd95659a79d1f15513bf43606a8e64dbec22d57f47",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 14,
+      "link": "https://explorer-studio.genlayer.com/tx/0x2f82ee8b95646a42b7ec35fd95659a79d1f15513bf43606a8e64dbec22d57f47"
+    },
+    {
+      "label": "leave observer",
+      "fn": "leave",
+      "attempt": 1,
+      "hash": "0x66eb7e0bff35ba5392f10d7765690fb941cf3e377fa04cf24b744d7d30f3e636",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 7,
+      "link": "https://explorer-studio.genlayer.com/tx/0x66eb7e0bff35ba5392f10d7765690fb941cf3e377fa04cf24b744d7d30f3e636"
+    },
+    {
+      "label": "reclaim_bond rejected before retirement",
+      "fn": "reclaim_bond",
+      "attempt": 1,
+      "hash": "0x9b2f51107390501a64c2339dcb32c2ff82916b57c89edeb5c479ef08e5e9e5a6",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x9b2f51107390501a64c2339dcb32c2ff82916b57c89edeb5c479ef08e5e9e5a6"
+    },
+    {
+      "label": "retire_rule",
+      "fn": "retire_rule",
+      "attempt": 1,
+      "hash": "0x00080019b2cd9d44a735fb53b2b2a46af1160e7dc83f379253d5eef1d799fb3d",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x00080019b2cd9d44a735fb53b2b2a46af1160e7dc83f379253d5eef1d799fb3d"
+    },
+    {
+      "label": "enlist rejected on a retired rule",
+      "fn": "enlist",
+      "attempt": 1,
+      "hash": "0x476e425c96949fe58c79f3c05e8486def54bb518a8ddcb9a4b263d9933398459",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x476e425c96949fe58c79f3c05e8486def54bb518a8ddcb9a4b263d9933398459"
+    },
+    {
+      "label": "reclaim_bond",
+      "fn": "reclaim_bond",
+      "attempt": 1,
+      "hash": "0x250585279c47b08022f5633876b57f8f1b7d6f123a4013d91631718fc29dd95b",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "AGREE",
+        "IDLE"
+      ],
+      "seconds": 8,
+      "link": "https://explorer-studio.genlayer.com/tx/0x250585279c47b08022f5633876b57f8f1b7d6f123a4013d91631718fc29dd95b"
+    },
+    {
+      "label": "withdraw author (0.006 GEN)",
+      "fn": "withdraw",
+      "attempt": 1,
+      "hash": "0x9deb738d8ca9b0abf630cf4f57cb64b0280888fdb30e0b3934ace5ab23d56d51",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 12,
+      "link": "https://explorer-studio.genlayer.com/tx/0x9deb738d8ca9b0abf630cf4f57cb64b0280888fdb30e0b3934ace5ab23d56d51"
+    },
+    {
+      "label": "withdraw plaintiff (0.0133 GEN)",
+      "fn": "withdraw",
+      "attempt": 1,
+      "hash": "0x6d56d9c1f3f598c2f9f5c15f79b3c82c03dbd123592115ada6031d6afb398844",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 38,
+      "link": "https://explorer-studio.genlayer.com/tx/0x6d56d9c1f3f598c2f9f5c15f79b3c82c03dbd123592115ada6031d6afb398844"
+    },
+    {
+      "label": "withdraw defendant (0.0051 GEN)",
+      "fn": "withdraw",
+      "attempt": 1,
+      "hash": "0xaa958c28dbef88289b426a9da6f2f761875fde98d01a2226ce151b2119b546b7",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 12,
+      "link": "https://explorer-studio.genlayer.com/tx/0xaa958c28dbef88289b426a9da6f2f761875fde98d01a2226ce151b2119b546b7"
+    },
+    {
+      "label": "withdraw observer (0.009 GEN)",
+      "fn": "withdraw",
+      "attempt": 1,
+      "hash": "0x2ec1c0f5cc56c4eef92b05c8ff77d3322aac1eef1b32d3f9b66894634a983b57",
+      "status": "ACCEPTED",
+      "executionOk": true,
+      "error": null,
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "IDLE",
+        "AGREE",
+        "AGREE"
+      ],
+      "seconds": 12,
+      "link": "https://explorer-studio.genlayer.com/tx/0x2ec1c0f5cc56c4eef92b05c8ff77d3322aac1eef1b32d3f9b66894634a983b57"
+    },
+    {
+      "label": "withdraw rejected when nothing is owed",
+      "fn": "withdraw",
+      "attempt": 1,
+      "hash": "0xf528385878dc8963e8710a46f62e80995b86f2593eac5ba3cb5365b00f2d1317",
+      "status": "ACCEPTED",
+      "executionOk": false,
+      "error": "",
+      "votes": [
+        "AGREE",
+        "IDLE",
+        "AGREE",
+        "IDLE",
+        "AGREE"
+      ],
+      "seconds": 12,
+      "link": "https://explorer-studio.genlayer.com/tx/0xf528385878dc8963e8710a46f62e80995b86f2593eac5ba3cb5365b00f2d1317"
+    }
+  ],
+  "notes": [
+    "case A: id 1, ruled BREACH [true,true]",
+    "case B: id 2, ruled COMPLIANT [false,false]",
+    "case C: id 3, ruled BREACH [false,false]",
+    "rpc: read get_claimable: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 2/6), waiting 10 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: submit submit_defense: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: submit rule_case: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 2/6), waiting 10 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: submit submit_defense: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: submit submit_defense: transient RPC error (attempt 2/6), waiting 10 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 2/6), waiting 10 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: submit leave: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 2/6), waiting 10 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: read get_claimable: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations",
+    "rpc: submit withdraw: transient RPC error (attempt 1/6), waiting 5 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations",
+    "rpc: submit withdraw: transient RPC error (attempt 2/6), waiting 10 s: Rate limit exceeded: 30 requests per minute",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations",
+    "rpc: fees(withdraw): estimate failed (attempt 1/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): estimate failed (attempt 2/2): Missing or invalid parameters. Double check you have provided the correct parameters.",
+    "rpc: fees(withdraw): fell back to high-budget estimate without message allocations"
+  ],
+  "summary": {
+    "PASS": 156,
+    "FAIL": 0,
+    "WARN": 0,
+    "INFO": 6,
+    "SKIP": 1,
+    "aborted": null,
+    "hardFailures": 0
+  },
+  "withdrawals": [
+    {
+      "name": "author",
+      "address": "0x69c56b2e2cf5226bc77d6b0fe8afd803f5d3225c",
+      "amount": "6000000000000000",
+      "balanceBefore": "19592737773999976245",
+      "hash": "0x9deb738d8ca9b0abf630cf4f57cb64b0280888fdb30e0b3934ace5ab23d56d51",
+      "finalStatus": "FINALIZED",
+      "netChange": "405795041750008471"
+    },
+    {
+      "name": "plaintiff",
+      "address": "0x13e7833027bf08b5e15c9d6d0a3d9646d8e7a29f",
+      "amount": "13300000000000000",
+      "balanceBefore": "19989599045249988008",
+      "hash": "0x6d56d9c1f3f598c2f9f5c15f79b3c82c03dbd123592115ada6031d6afb398844",
+      "finalStatus": "FINALIZED",
+      "netChange": "13173694749999177"
+    },
+    {
+      "name": "defendant",
+      "address": "0x7785cefebc892ea45d8023fdbbdae67a57429cd7",
+      "amount": "5100000000000000",
+      "balanceBefore": "19990191551749992358",
+      "hash": "0xaa958c28dbef88289b426a9da6f2f761875fde98d01a2226ce151b2119b546b7",
+      "finalStatus": "FINALIZED",
+      "netChange": "4973694749999177"
+    },
+    {
+      "name": "observer",
+      "address": "0x0f1821f9a9330398c4afeb3e72501acf02865ea1",
+      "amount": "9000000000000000",
+      "balanceBefore": "19990210016499991770",
+      "hash": "0x2ec1c0f5cc56c4eef92b05c8ff77d3322aac1eef1b32d3f9b66894634a983b57",
+      "finalStatus": "FINALIZED",
+      "netChange": "8873694749999177"
+    }
+  ],
+  "finishedAt": "2026-11-28T10:37:35.117Z",
+  "retainedValue": {
+    "mode": "refunded",
+    "observedRetention": false,
+    "confirmedWei": "42499999999999996",
+    "unconfirmedWei": "0"
+  }
+}
