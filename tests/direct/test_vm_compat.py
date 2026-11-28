@@ -1,4 +1,4 @@
-"""Checks that mirror constraints of the real GenVM v0.2.16 runtime."""
+"""Checks that mirror constraints of the real GenVM v0.4 runtime."""
 import json
 
 from conftest import R, S_PLAIN, llm

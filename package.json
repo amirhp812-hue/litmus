@@ -2,7 +2,7 @@
   "name": "litmus-intelligent-contract",
   "version": "1.0.0",
   "private": true,
-  "description": "Litmus: rules that must pass their own test under validator consensus (GenLayer, GenVM v0.2.16).",
+  "description": "Litmus: rules that must pass their own test under validator consensus (GenLayer, GenVM v0.4, Studio v0.123).",
   "type": "module",
   "scripts": {
     "e2e": "node scripts/live_e2e.mjs",
