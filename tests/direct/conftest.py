@@ -278,3 +278,56 @@ def build_world(direct_deploy, direct_vm, direct_accounts, path=CONTRACT):
 def world(direct_deploy, direct_vm, direct_accounts):
     with build_world(direct_deploy, direct_vm, direct_accounts) as w:
         yield w
+
+TRANSFER_REQUESTS = ("PostMessage", "EthSend", "EmitExternalMessage", "EmitInternalMessage")
+def hex_address(address):
+    return (address.as_hex if hasattr(address, "as_hex") else "0x" + bytes(address).hex()).lower()
+
+def transfer_from_request(request):
+    if not isinstance(request, dict):
+        return None
+    for kind in TRANSFER_REQUESTS:
+        m = request.get(kind)
+        addr = m.get("address", m.get("to")) if isinstance(m, dict) else None
+        if addr is not None and "value" in m:
+            b = m.get("calldata")
+            method = b.get("method", b.get("")) if isinstance(b, dict) else None
+            return {"to": hex_address(addr), "value": int(m["value"]), "method": method, "on": m.get("on")}
+    return None
+def reply_as_text(calldata, request, reply):
+    if not (isinstance(request, dict) and any("ExecPrompt" in str(k) for k in request)):
+        return reply
+    try:
+        d = calldata.decode(reply)
+    except Exception:
+        return reply
+    if isinstance(d, dict) and set(d) == {"ok"} and isinstance(d["ok"], (dict, list)):
+        return calldata.encode({"ok": json.dumps(d["ok"], ensure_ascii=False)})
+    return reply
+@contextlib.contextmanager
+def build_world(direct_deploy, direct_vm, direct_accounts, path=CONTRACT):
+    contract = direct_deploy(path)
+    direct_vm.warp(BASE_TIME)
+    direct_vm.deal(direct_vm._contract_address, 10 ** 30)
+    w = World(direct_vm, direct_accounts, contract)
+    import gltest.direct.wasi_mock as wm
+    orig_llm, orig_hook = wm._handle_llm_request, direct_vm._gl_call_hook
+    def p_llm(vm, d):
+        r = orig_llm(vm, d)
+        return {"ok": json.dumps(r["ok"])} if isinstance(r, dict) and isinstance(r.get("ok"), (dict, list)) else r
+    def hook(vm, req):
+        t = transfer_from_request(req)
+        if t is not None:
+            w.transfers.append(t)
+            return {"ok": None}
+        return orig_hook(vm, req) if orig_hook else None
+    wm._handle_llm_request, direct_vm._gl_call_hook = p_llm, hook
+    try:
+        yield w
+    finally:
+        wm._handle_llm_request, direct_vm._gl_call_hook = orig_llm, orig_hook
+
+@pytest.fixture
+def world(direct_deploy, direct_vm, direct_accounts):
+    with build_world(direct_deploy, direct_vm, direct_accounts) as w:
+        yield w

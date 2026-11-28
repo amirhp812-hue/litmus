@@ -7,3 +7,4 @@ __pycache__/
 .env
 # dry-run reports are throw-away; the Studionet reports are submission evidence and must be committed
 reports/live_e2e_dryrun_*
+.venv/
