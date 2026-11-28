@@ -48,7 +48,7 @@ contract from the agreed `verdict` and `factors` only, so they are equal on ever
 |---|---|
 | `tests/direct/test_equality_law.py` | exhaustive matrix: for 0, 1, 2, 3 aggravating factors and each of PROBE / CASE / APPEAL, every ordered pair of states (BREACH with every flag combination, COMPLIANT, INCONCLUSIVE) is accepted **iff** the two states are identical. Plus named cases for one-step-stricter, one-step-lenient, same severity with different flags, adjacent verdicts, 22 non-canonical leader payloads, reason handling, leader/validator failures. |
 | `tests/direct/test_mutations.py` | 20 mutants of the real source (one-step tolerance, verdict-only, flag-count-only, accept-stricter, accept-more-lenient, adjacent verdicts equal, skipped canonical check, repaired leader output, always-true validator, accept-any-leader-error, plus accounting faults) must all be **killed**. |
-| `tests/test_static_guards.py` | AST: validator has only `==` comparisons on the decision fields; no `abs`, `sum`, `min`, `max`, `len`, ordering, `in`, arithmetic; no `eq_principle`; exactly one model call and one `run_nondet_unsafe`; no storage or clock in the nondeterministic block; state mutated only after `judge()`. |
+| `tests/test_static_guards.py` | AST: validator has only `==` comparisons on the decision fields; no `abs`, `sum`, `min`, `max`, `len`, ordering, `in`, arithmetic; no `eq_principle`; exactly one model call and one `run_nondet` (`run_nondet_unsafe` and the other removed or lenient APIs are forbidden); no storage or clock in the nondeterministic block; state mutated only after `judge()`. |
 | `tests/direct/test_vm_compat.py` | closures pickle (as they must when shipped to validators) and capture plain data only. |
 
 ## What exact equality costs, and how Litmus copes
@@ -64,3 +64,12 @@ statement. Litmus handles this without loosening the law:
   never reaches certification;
 * failed calls change nothing and can be retried; a case that never reaches a quorum is freed by the
   deterministic `void_case` after seven days.
+
+## What the live network showed (Studionet, 2026-11-28)
+
+* The nine model-backed transactions of the run (five `run_probe`, three `rule_case`, one `appeal_case`) were all accepted on their first
+  attempt, and every agreed result equals the designed expectation, so the law cost no retry in this run.
+* `run_probe 2` was accepted with one DISAGREE among five votes (AGREE/IDLE/AGREE/AGREE/DISAGREE). The law is applied by each validator
+  against the leader's answer and the network decides by majority; the stored ruling is the agreed one.
+* The run did not exercise the liveness cost (a call that never reaches agreement, `void_case`); that path is covered by the Direct Mode
+  tests only. Details of the run: [LIVE_E2E.md](LIVE_E2E.md).

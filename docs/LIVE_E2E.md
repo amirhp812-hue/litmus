@@ -8,9 +8,11 @@ node scripts/live_e2e.mjs --address=0x... # reuse a FRESH deployment (rules and 
 node scripts/live_e2e.mjs --strict        # warnings also fail the run
 node scripts/live_e2e.mjs --dry-run       # no network: in-process model with a virtual clock
 node scripts/live_e2e.mjs --dry-run --retain-rejected             # model: rejected payable calls keep their value for good (seen 2026-11-18)
-node scripts/live_e2e.mjs --dry-run --refund-rejected-late        # model: the value is returned after finalization (seen 2026-11-26)
+node scripts/live_e2e.mjs --dry-run --refund-rejected-late        # model: the value is returned after finalization (seen 2026-11-26 and 2026-11-28)
 node scripts/live_e2e.mjs --dry-run --late-transfers              # model: withdraw transfers are applied only on finalization
 node scripts/live_e2e.mjs --dry-run --lost-transfers              # model: withdraw finalizes but the transfer never arrives (must FAIL)
+node scripts/live_e2e.mjs --dry-run --flip-appeals                # model: every appeal reverses the first ruling (reversal, bond slash, suspension)
+node scripts/live_e2e.mjs --dry-run --transcript=run.json         # also write the transcript that tests/direct/test_dryrun_replay.py replays
 node scripts/live_e2e.mjs --dry-run --retain-rejected --flaky-rpc # ... and inject a rate-limit refusal and a lost receipt
 node scripts/verify_withdrawals.mjs reports/live_e2e_studionet_<stamp>.json   # re-check wallet credits after finalization
 ```
@@ -24,8 +26,9 @@ private keys: author, plaintiff, defendant, observer, outsider; if absent the sc
 and funds them with the Studio RPC method `sim_fundAccount`; if that is unavailable it stops and tells you
 which addresses to fund).
 
-Expected duration on Studionet: about 25-40 minutes (each model-backed transaction takes roughly 30-120 s;
-the timeout case runs in the background of the other cases so the wait is mostly hidden).
+Duration on Studionet: the `--skip-slow` run of 2026-11-28 took 15 minutes 18 seconds (10:22:17 to 10:37:35 UTC); its model-backed
+transactions took 14-25 s each. The full run adds the timeout case, whose two windows (3 + 4 minutes) run in the background of the
+other cases; its duration on the v0.4 contract has not been measured yet.
 
 ## What it does
 
@@ -83,19 +86,30 @@ transaction into a send error. The public Studio RPC allows 30 requests per minu
 contract with a deterministic stand-in for the validators and a virtual clock. It records a transcript.
 `tests/direct/test_dryrun_replay.py` replays that transcript against the real Python contract in Direct Mode
 and requires the final stats, rules, cases, members and ledgers to be identical, which keeps the model, the
-script's accounting oracle and the contract from drifting apart.
+script's accounting oracle and the contract from drifting apart. The test replays four variants: the default run, `--flip-appeals`,
+`--skip-slow` and `--refund-rejected-late --late-transfers`.
+
+Recorded result of the full dry run (`reports/live_e2e_dryrun_2026-11-28T11-32-43-002Z.*`, no flags, so the timeout case is included):
+**174 PASS, 0 FAIL, 0 WARN, 4 INFO**. The timeout case is case 1 (the defendant is EXPELLED at the strike limit, final membership
+status in the INFO check); cases A, B and C are cases 2, 3 and 4 (BREACH [true,true], COMPLIANT, BREACH [false,false]). The dry run has
+no network, so its `retainedValue.mode` stays `unknown`.
 
 ## Value attached to rejected payable calls
 
 When the contract rejects a payable call (`forge_rule`, `enlist`, `file_case`, `appeal_case` with a wrong amount, on
 a retired rule, twice ...), the call is rolled back and the contract cannot refund inside a call it reverts. What the
-network then does with the attached value was seen in two ways:
+network then does with the attached value was seen in two ways over three runs:
 
 * **2026-11-26: held, then returned.** Right after a rejected call the contract's native balance is higher than its
   escrow by that value; once the rejected transaction finalizes the balance is back at the escrow. The senders' wallets
   confirm it: the author spent 7.34e15 wei in total (the 6e15 bond plus fees) although 15e15 wei had been attached to
   three rejected forges, and the plaintiff, who attached 9e15 wei to each of two rejected `enlist` calls, spent 10.4e15
   wei in total (the 9e15 stake, 0.3e15 of filing deposits and fees).
+* **2026-11-28 (v0.4 contract): held, then returned.** After the three rejected forges the balance was 14999999999999999 wei above its
+  earlier level (C014); after the rejected `enlist twice` it was 9e15 wei above the escrow (C048) and after the rejected `enlist` on the
+  retired rule again 9e15 wei above (C145). Each audit waited for finalization and the balance came back to the escrow (C023, C049,
+  C146). The report records `retainedValue.mode = refunded`: 42499999999999996 wei was attached to rejected calls in total and all of it
+  returned (C163).
 * **2026-11-18: kept.** That run's final balance equalled the value of all rejected calls. That run did not wait for
   finalization before reading the balance.
 
@@ -122,16 +136,53 @@ credited) together. The script therefore
    after wind-down. A withdraw that is not FINALIZED yet is a WARN; re-check it with
    `node scripts/verify_withdrawals.mjs <report.json>`.
 
-For `withdraw` the adapter asks the node for a fee estimate that carries the message allocation of the emitted
-transfer, and writes into the report notes whether that estimate worked (`fees(withdraw): estimated, N message
-allocation(s)`) or silently fell back to the default fee config (`fees(withdraw): fell back ... WITHOUT message
-allocations`). If a run shows the fallback line and unpaid wallets, the cause is the transaction parameters, not the
-contract.
+For `withdraw` the adapter first asks the node for a fee estimate that carries the message allocation of the emitted
+transfer (`estimateTransactionFeesForWrite`) and writes into the report notes whether that estimate worked
+(`fees(withdraw): estimated, N message allocation(s)`) or fell back to the default fee config (`fees(withdraw): fell back ...
+WITHOUT message allocations`).
+
+**What the real network did (2026-11-28):** the estimate never succeeded. Every attempt failed with `Missing or invalid parameters`
+(14 failed attempts, 7 fallbacks, no `estimated` note), so every withdraw was sent **without** message allocations, and Studionet still
+applied every emitted transfer when the transaction finalized: the wallets were credited and the contract balance went to zero.
+On this network and contract the allocations were therefore not needed for the payout. Two things stay open: whether other networks or
+Studio versions require them, and why `estimateTransactionFeesForWrite` of genlayer-js 2.1.0 rejects the parameters the adapter sends
+(a script/SDK matter, not a contract matter). If a future run shows the fallback line **and** unpaid wallets, suspect the missing
+allocations first.
+
+## The Studionet run of 2026-11-28 (`reports/live_e2e_studionet_2026-11-28T10-22-17-258Z.*`, `--skip-slow`)
+
+First live run of the v0.4 contract (chain id 61999, Studio v0.123 / Consensus v0.6, 20 validators). Contract
+`0x7942816B0D37Cb141aAd46527692c6bff9F42Eea`, deployed fresh by the script; the deployed bytes equal `contracts/Litmus.py` (36275 bytes,
+sha256 `2449db5590d94b3d521d9fffe0f6c677f026a79786033ff31d23613847707088`, C005/C008). **156 PASS, 0 FAIL, 0 WARN, 6 INFO, 1 SKIP.**
+The skip is the timeout case T (`--skip-slow`, C050). Every transaction was accepted on its first attempt.
+
+| Area | Result |
+|---|---|
+| Rule lifecycle | three rejected forges left state untouched; the real forge escrowed the 6e15 bond; five golden probes, all agreed and equal to the author's expectation; clarity 100; stored digest equals the digest computed in JavaScript; revision of a certified rule rejected |
+| Members and cases | three members enlisted (9e15 stake each); case A BREACH [true,true] severity 3 (waived), case B COMPLIANT (waived), case C BREACH [false,false] severity 1 appealed and upheld; every figure the oracle recomputed (penalty, credits, stake, strikes, reservation, counters, bond, reversals) matched the chain |
+| Rejections | every one of them has a receipt with `exec=false`; no `SEND_ERROR`, no rejection accepted on "state unchanged" alone |
+| Books | `escrow_total` equalled the recomputed liabilities after every stage; the contract balance equalled the escrow once the value of rejected payable calls had returned (see above) |
+| Exit | members left, rule retired, bond reclaimed, four withdrawals FINALIZED, escrow, claimable and contract balance all zero |
+| Transport | 16 rate-limit refusals (30 requests per minute) were retried on the same transaction; none was lost |
+
+Observations worth knowing:
+
+* **The fee estimate for `withdraw` failed and the payouts still arrived** (see "Wallet credits and finalization").
+* **Wallet credits.** The plaintiff, defendant and observer wallets rose by exactly the withdrawn amount minus 126305250000823 wei, the
+  same transaction fee each time. The **author's** wallet rose by 405795041750008471 wei for 6000000000000000 withdrawn. The author's
+  balance had been measured about 0.4 GEN below the other wallets before the withdrawals, which is consistent with fee budgets of the
+  author's earlier transactions being returned at finalization, but the report does not prove that. The credit check only demands a rise of
+  at least the amount minus the fee allowance, so C156 proves that the author's withdrawal arrived, not that the whole rise comes from it.
+* **One dissenting vote.** `run_probe 2` was accepted with votes AGREE/IDLE/AGREE/AGREE/DISAGREE; consensus is by majority, the law applies per
+  validator, and the stored result is the agreed one (see [CONSENSUS.md](CONSENSUS.md)).
+* **Not covered on chain:** the timeout case (expulsion, `settle_case` without a waiver) and an overturned appeal (case C was upheld, so
+  reversals stayed 0 and the bond was not slashed). Run without `--skip-slow` for the first; the second is covered by Direct Mode tests and
+  by the dry run (`--flip-appeals`).
 
 > The run of 2026-11-26 below was made against the GenVM v0.2 contract that Studio v0.123 still serves for legacy deployments.
 > The v0.4 port is a new contract: its first live run writes a new report with the new address.
 
-## The Studionet run of 2026-11-26 (`reports/live_e2e_studionet_2026-11-26T14-41-12-921Z.*`, `--skip-slow`)
+## The Studionet run of 2026-11-26 (`reports/live_e2e_studionet_2026-11-26T14-41-12-921Z.*`, files no longer in the repository, `--skip-slow`)
 
 Contract `0x57A3125911B84944CBE8148A34e715f98f215F81`, 144 PASS, 0 FAIL, 12 WARN, 6 INFO. Every state check passed
 (rule lifecycle, five golden probes, three cases including an appeal, settlement oracle, books). The 12 warnings, by
@@ -140,7 +191,7 @@ cause:
 | Checks | Cause | Status |
 |---|---|---|
 | C022, C048, C079, C104, C129, C145, C162 (7) | The script believed the value of rejected payable calls stays in the contract (from one early reading, C013) and demanded `balance = escrow + all rejected value`. The balance was in fact `escrow` or `escrow + the last rejected call` (C048: exactly the 9e15 of the `enlist twice` that had just been rejected; C145: exactly the 9e15 of the rejected `enlist` on a retired rule), i.e. the value is returned after finalization. | Script bug, fixed (audit waits and classifies). The contract was right. |
-| C155-C159 (5) | After all four `withdraw` transactions FINALIZED the wallets showed only the fee loss (about -1.3e14 wei) and the contract still held 33.4e15 wei, exactly the withdrawn sum. The check also compared with `balance + amount` and ignored the fee. | **Open.** Either Studionet did not apply the emitted transfers, or the withdraw was sent without the message allocation for them (the fee-estimate fallback was silent). The script now reports which, and fails instead of warning. Run `node scripts/verify_withdrawals.mjs reports/live_e2e_studionet_2026-11-26T14-41-12-921Z.json` to see whether the credits arrived later. |
+| C155-C159 (5) | After all four `withdraw` transactions FINALIZED the wallets showed only the fee loss (about -1.3e14 wei) and the contract still held 33.4e15 wei, exactly the withdrawn sum. The check also compared with `balance + amount` and ignored the fee. | **Not reproduced with the v0.4 contract**: in the 2026-11-28 run all four payouts arrived although the fee estimate with message allocations failed and was replaced by the default fee config. Why the legacy v0.2 contract's transfers were not applied in this run was never established. The script now fails a finalized withdraw whose wallet is not credited. |
 
 The 17 `rpc:` notes of the report are rate-limit refusals (30 requests per minute) that the adapter retried; no
 transaction was lost.

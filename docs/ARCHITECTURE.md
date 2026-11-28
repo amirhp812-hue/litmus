@@ -69,8 +69,10 @@ on time or on already agreed data is permissionless.
 `gl.chain.Account(address).emit_transfer(value=amount)` (the v0.4 form; `gl.get_contract_at(...).emit_transfer` is gone) and
 refuses if the contract's native balance is below the amount. The transfer is an emitted message that sends value only and
 never runs code at the receiver; it is applied on finalization, so a wallet is credited when the transaction finalizes. On
-Studio v0.123 (Consensus v0.6) the transaction that emits it must carry `messageAllocations` in its fees; the live script
-obtains them from `estimateTransactionFeesForWrite`.
+Studio v0.123 (Consensus v0.6) a transaction that emits a funded message can carry `messageAllocations` in its fees; the live
+script tries to obtain them from `estimateTransactionFeesForWrite`. In the 2026-11-28 run that estimate failed every time, the
+withdraws were sent without allocations, and Studionet still delivered every transfer on finalization, so on Studionet the contract
+does not depend on them (see [LIVE_E2E.md](LIVE_E2E.md)).
 
 ## GenVM v0.4 port (Studio v0.123)
 
@@ -93,20 +95,26 @@ nondeterministic closures capture only a `str`, an `int` and a tuple, so no `gl.
 
 **The v0.4 contract is a new contract**: v0.2 contracts keep their address and state on Studio v0.123 for now, but nothing
 migrates. Deploy it fresh (`node scripts/live_e2e.mjs` deploys, source-checks and records the new address) and use the new
-address everywhere.
+address everywhere. The live run of 2026-11-28 made the first v0.4 deployment, `0x7942816B0D37Cb141aAd46527692c6bff9F42Eea` (chain id
+61999); its deployed bytes equal `contracts/Litmus.py` (36275 bytes).
 
 ## Direct Mode harness notes (genlayer-test 0.30.0, GenVM v0.4 SDK)
 
-`tests/direct/conftest.py` wraps `_genlayer_wasi.gl_call` once per test world. Three facts about the mock host drive it:
+`tests/direct/conftest.py` defines every helper once; `build_world()` (also used by the mutation tests) patches genlayer-test's mock host
+for the duration of a test. Three facts about the mock drive it:
 
-* **Model replies must reach the SDK as text.** genlayer-test parses a mocked JSON reply into a dict
-  (genlayer-testing-suite issue #157); the v0.4 SDK expects the host to answer `exec_prompt(..., response_format="json")`
-  with text and parses it itself, otherwise every judging call fails with `JSON result is not text`. `llm()` already hands
-  `mock_llm` a JSON string; `reply_as_text()` turns the parsed answer back into text on its way to the SDK.
-* **The mock never moves money.** Outgoing native transfers are recorded from the host request itself: `PostMessage`
-  (carries a delivery flag `on`) or `EthSend` (a payout to a wallet; no flag). `world.transfers` holds one entry per payout.
-* **`calldata` lives at `genlayer.calldata` in the v0.4 SDK** (`genlayer.py.calldata` in v0.2); the import tries both.
+* **Model replies must reach the SDK as text.** genlayer-test parses a mocked JSON reply into a dict (genlayer-testing-suite issue #157);
+  the v0.4 SDK expects the host to answer `exec_prompt(..., response_format="json")` with text and parses it itself, otherwise every
+  judging call fails with `JSON result is not text`. `llm()` already hands `mock_llm` a JSON string; `build_world()` wraps
+  `gltest.direct.wasi_mock._handle_llm_request` and turns a dict or list answer back into JSON text. `reply_as_text()` expresses the same
+  conversion on raw calldata; `test_host_shims.py` tests it, but `build_world()` does not call it.
+* **The mock never moves money.** `build_world()` installs a hook on `direct_vm._gl_call_hook`. A request that carries a native transfer
+  (`PostMessage`, `EthSend`, `EmitExternalMessage` or `EmitInternalMessage`, recognised by `transfer_from_request()`, which also reads the
+  delivery flag `on` when there is one) is appended to `world.transfers` as `{to, value, method, on}` and answered with `{"ok": None}`;
+  every other request goes to the original hook.
+* **The hooks are private names of genlayer-test** (`_handle_llm_request`, `_gl_call_hook`). If an update renames them, the Direct Mode
+  suite fails while the `world` fixture is built, before any contract code runs.
 
-If a payout test ever shows an empty `world.transfers`, run `LITMUS_TRACE_GL_CALLS=1 python -m pytest tests/direct -s -k withdraw`:
-the first request of every kind is printed, which shows what `gl.chain.Account(...).emit_transfer` really sends.
-`tests/direct/test_host_shims.py` covers the helpers without any GenVM.
+If a payout test ever shows an empty `world.transfers`, print `req` inside `hook()` in `build_world()` to see what
+`gl.chain.Account(...).emit_transfer` really sends to the host. `tests/direct/test_host_shims.py` covers the helper functions without
+any GenVM.

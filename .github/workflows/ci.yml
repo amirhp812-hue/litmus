@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   genvm-offline:
-    name: GenVM v0.2.16 lint, Direct Mode, dry run
+    name: GenVM v0.4 (Studio v0.123) lint, Direct Mode, dry run
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

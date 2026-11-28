@@ -113,23 +113,41 @@ verified against **contract state**, language-model steps are retried and report
 
 | Gate | Result |
 |---|---|
-| `genvm-lint check` against the v0.4 runner | **to run** with `bash scripts/check.sh` (passed on the v0.2.16 runner before the port: 24 methods, 8 views, 16 writes) |
-| Direct Mode suite (real v0.4 SDK) | **to run** with `bash scripts/check.sh` (139 tests on v0.2.16 before the port: lifecycle, validation, payouts, appeals, expulsion, liveness escape, closures pickle like on the real VM) |
+| `genvm-lint check` against the v0.4 runner | passed in the Codespaces run of `bash scripts/check.sh` (`GENVM_VERSION=v0.6.0-rc14`, genvm-linter 0.11.1rc2): 24 methods, 8 views, 16 writes, schema generated |
+| Direct Mode suite (real v0.4 SDK) | **146 passed** in `bash scripts/check.sh` (`GENVM_VERSION=v0.6.0-rc14`: lifecycle, validation, payouts, appeals, expulsion, liveness escape, closures pickle like on the real VM) |
 | Exact-equality matrix | every (leader, validator) pair of every state for 0-3 factors in PROBE, CASE and APPEAL mode |
 | Mutation tests | 20 deliberately broken contracts, all killed (tolerance, one-step, adjacent verdicts, accounting faults) |
 | Seeded random walks | 10 walks x 600 steps, books re-audited after every successful call, every outcome reached |
 | Differential replay | the live script's model and accounting oracle replayed on the real Python contract: identical final state |
 | Static guards (offline, 15 checks) | validator uses `==` only; one model call site; no storage or time inside the nondeterministic block; the v0.4 rules (header, imports, no removed APIs, no `__receive__`, no decorators on special methods, storage types, `gl.chain.Account` transfers only in `withdraw`) |
+| Dry run, full (`node scripts/live_e2e.mjs --dry-run`, timeout case included) | **174 PASS, 0 FAIL, 0 WARN**, 4 INFO (`reports/live_e2e_dryrun_2026-11-28T11-32-43-002Z.*`) |
+| Live run on Studionet (`--skip-slow`, v0.4 contract) | **156 PASS, 0 FAIL, 0 WARN**, 6 INFO, 1 SKIP (`reports/live_e2e_studionet_2026-11-28T10-22-17-258Z.*`); deployed bytes equal `contracts/Litmus.py` (36275 bytes, sha256 `2449db55...7088`) |
 
-**Live run (before the v0.4 port, GenVM v0.2 contract):** `reports/live_e2e_studionet_2026-11-26T14-41-12-921Z.md` is a `--skip-slow` run on Studionet (contract
-`0x57A3125911B84944CBE8148A34e715f98f215F81`, deployed bytes equal to `contracts/Litmus.py`): 144 PASS, 0 FAIL, 12 WARN.
-Every contract-state check passed. The 12 warnings came from the *script*, not from the contract: seven came from a wrong
-model of the value attached to rejected payable calls (it is held and **returned after finalization**, not kept), and five
-concern the payout of `withdraw` (the wallets were not credited although the transactions finalized, and the old
-comparison could not have succeeded anyway because it ignored the transaction fee). The script was fixed afterwards
-(see [docs/LIVE_E2E.md](docs/LIVE_E2E.md)); **a payout that finalizes without reaching the wallet is now a FAIL**, and
-whether Studionet really delivers the transfers is still to be confirmed by a new run and
-`npm run verify:withdrawals -- reports/<report>.json`.
+The exact-equality matrix, mutation, random-walk and differential-replay rows are Direct Mode tests and all passed in the 146-test `bash scripts/check.sh` run on v0.4. The two rows just above this note are recorded in `reports/`.
+
+**Live run on Studionet (v0.4 contract, 2026-11-28):** `reports/live_e2e_studionet_2026-11-28T10-22-17-258Z.md`, a `--skip-slow` run of about
+15 minutes (chain id 61999, Studio v0.123 / Consensus v0.6). Fresh deployment `0x7942816B0D37Cb141aAd46527692c6bff9F42Eea`; the deployed
+bytes equal `contracts/Litmus.py`. Result: 156 PASS, 0 FAIL, 0 WARN, 6 INFO, 1 SKIP (the timeout case, skipped by `--skip-slow`). The five
+golden probes and the three case rulings (waived, compliant, appealed) were agreed by the validators on the first attempt and each equals
+the designed expectation (clarity 100); every rejected call is proven by a receipt (`exec=false`); the settlement oracle matched the chain
+for all three cases; the books balanced after every stage and ended at zero.
+
+What this run settled:
+
+* **`withdraw` pays out.** All four withdraw transactions finalized, three wallets were credited exactly the withdrawn amount minus the
+  transaction fee (126305250000823 wei each) and the contract balance fell to zero. That closes the open question of the 2026-11-26 run,
+  which used the v0.2 contract.
+* **`messageAllocations` were not needed here.** The script asks the node for a fee estimate that carries them (`estimateTransactionFeesForWrite`);
+  that estimate never succeeded (`Missing or invalid parameters`, 14 failed attempts, 7 fallbacks) and the withdraws were sent with the
+  default fee config, without allocations. Studionet still delivered every transfer on finalization. Whether other networks or Studio versions
+  require allocations is not established, and the failing estimate is a script/SDK parameter issue, not a contract issue.
+* **Value attached to rejected payable calls is returned after finalization** (42499999999999996 wei in total; see
+  [docs/LIVE_E2E.md](docs/LIVE_E2E.md)).
+
+What it did not cover on chain: the timeout case (expulsion at the strike limit, `settle_case` without a waiver) and the overturn of a ruling
+on appeal (case C was upheld: reversals 0, bond untouched). Both are covered by the Direct Mode suite and the dry run only; run
+`node scripts/live_e2e.mjs` without `--skip-slow` for the first one. Details and one open observation about the author's wallet:
+[docs/LIVE_E2E.md](docs/LIVE_E2E.md). Earlier runs on the v0.2 contract (2026-11-18, 2026-11-26) are history, described there.
 
 ## Known limits (by design)
 
@@ -137,16 +155,16 @@ whether Studionet really delivers the transfers is still to be confirmed by a ne
   can be retried; a case that never reaches a quorum can be voided after 7 days. Write concrete rules and
   concrete probes: the clarity gate exists to teach exactly that.
 * Native-token transfers are emitted **on finalization**; `withdraw` therefore credits the wallet after the
-  transaction finalizes, not at acceptance.
+  transaction finalizes, not at acceptance. The 2026-11-28 run confirmed it on Studionet: the wallets were credited once the withdraw transactions were FINALIZED.
 * The contract trusts the model only for the closed form described above; it does not fetch web pages. The
   evidence is the text parties submit on-chain.
 * One appeal per case; appeals do not chain.
 * **Attach exactly the required amount to payable calls.** When the contract rejects a payable call (wrong stake or
   deposit, calling `enlist` twice ...) the call is rolled back and a contract cannot refund inside a call it reverts.
-  On Studionet the attached value sits in the contract's native balance until the rejected transaction finalizes; the
-  run of 2026-11-26 saw it returned to the sender after finalization (the senders' wallets only lost fees), the run of
-  2026-11-18 saw it stay. It is never part of `escrow_total` and nobody is owed it by the contract, so do not depend on
-  getting it back.
+  On Studionet the attached value sits in the contract's native balance until the rejected transaction finalizes and is
+  then returned to the sender: seen on 2026-11-26 and again on 2026-11-28 (balance back at the escrow, senders only lost
+  fees). The run of 2026-11-18 saw it stay, but it read the balance before finalization. It is never part of
+  `escrow_total` and nobody is owed it by the contract, so do not depend on getting it back.
 
 ## Layout
 
@@ -160,4 +178,6 @@ scripts/check.sh               every offline gate in one command
 scripts/verify_deployed_source.mjs   byte parity of deployed code vs source
 scripts/verify_withdrawals.mjs       re-check wallet credits of a finished live run after finalization
 docs/                          CONSENSUS, ARCHITECTURE, LIVE_E2E
+reports/                       live and dry-run reports (*.md for people, *.json for scripts/verify_withdrawals.mjs)
+.github/workflows/ci.yml       the same gates as scripts/check.sh on every push and pull request
 ```
